@@ -1,0 +1,17 @@
+[tools]
+node = "24"
+pnpm = "12"
+"npm:oxlint" = "1.77"
+"npm:oxlint-tsgolint" = "7"
+"npm:oxfmt" = "0.60"
+python = "3.12"
+uv = "latest"
+
+[tasks.dev]
+run = "pnpm dev"
+
+[tasks.build]
+run = "pnpm build"
+
+[tasks.validate]
+run = ["pnpm typecheck", "pnpm lint", "pnpm fmt --check"]

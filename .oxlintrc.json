@@ -1,0 +1,24 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["react", "typescript", "unicorn", "import"],
+  "rules": {
+    "no-restricted-imports": [
+      "error",
+      {
+        "paths": [
+          {
+            "name": "react",
+            "importNames": ["useEffect"],
+            "message": "useEffect is banned — derive state inline, use useQuery, event handlers, useMountEffect, or a key prop."
+          },
+          {
+            "name": "zod",
+            "message": "zod is banned — use valibot."
+          }
+        ]
+      }
+    ],
+    "unicorn/no-null": "off"
+  },
+  "ignorePatterns": ["dist/**", "node_modules/**", "ios/**", "android/**", ".expo/**", "app/routes.d.ts"]
+}

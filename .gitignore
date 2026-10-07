@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.expo/
+ios/
+android/
+*.log
+.env
+.env.*
+!.env.example
+app/routes.d.ts
+.DS_Store
