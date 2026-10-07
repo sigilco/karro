@@ -1,0 +1,220 @@
+{
+  "type": "FeatureCollection",
+  "name": "malaga_sare_zones",
+  "metadata": {
+    "source": "plazasaparcamientossare2013.csv (street-count table, no geometry) — polygons hand-authored as bounding boxes of the dataset's real sector names.",
+    "baked": "2026-10-07",
+    "confidence": "inferred"
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Atarazanas",
+        "type": "sare_blue",
+        "hours": "Mon–Fri 9–14 & 16–20, Sat 9–14",
+        "priceEurPerHour": 1.1,
+        "maxStayMin": 30,
+        "zbe": true,
+        "confidence": "inferred"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-4.4272, 36.7175], [-4.4223, 36.7175], [-4.4223, 36.7200],
+          [-4.4272, 36.7200], [-4.4272, 36.7175]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Soho",
+        "type": "sare_blue",
+        "hours": "Mon–Fri 9–14 & 16–20, Sat 9–14",
+        "priceEurPerHour": 1.1,
+        "maxStayMin": 30,
+        "zbe": true,
+        "confidence": "inferred"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-4.4295, 36.7130], [-4.4223, 36.7130], [-4.4223, 36.7175],
+          [-4.4295, 36.7175], [-4.4295, 36.7130]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Ayuntamiento",
+        "type": "sare_blue",
+        "hours": "Mon–Fri 9–14 & 16–20, Sat 9–14",
+        "priceEurPerHour": 1.1,
+        "maxStayMin": 30,
+        "zbe": true,
+        "confidence": "inferred"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-4.4223, 36.7178], [-4.4140, 36.7178], [-4.4140, 36.7215],
+          [-4.4223, 36.7215], [-4.4223, 36.7178]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Malagueta",
+        "type": "sare_blue",
+        "hours": "Mon–Fri 9–14 & 16–20, Sat 9–14",
+        "priceEurPerHour": 1.1,
+        "maxStayMin": 30,
+        "zbe": true,
+        "confidence": "inferred"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-4.4140, 36.7185], [-4.3960, 36.7185], [-4.3960, 36.7250],
+          [-4.4140, 36.7250], [-4.4140, 36.7185]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "El Carmen",
+        "type": "sare_blue",
+        "hours": "Mon–Fri 9–14 & 16–20, Sat 9–14",
+        "priceEurPerHour": 1.1,
+        "maxStayMin": 30,
+        "zbe": false,
+        "confidence": "inferred"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-4.4080, 36.7090], [-4.3960, 36.7090], [-4.3960, 36.7185],
+          [-4.4080, 36.7185], [-4.4080, 36.7090]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Comp. Lemberg Ruiz",
+        "type": "sare_blue",
+        "hours": "Mon–Fri 9–14 & 16–20, Sat 9–14",
+        "priceEurPerHour": 1.1,
+        "maxStayMin": 30,
+        "zbe": false,
+        "confidence": "inferred"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-4.4365, 36.7170], [-4.4310, 36.7170], [-4.4310, 36.7200],
+          [-4.4365, 36.7200], [-4.4365, 36.7170]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Aurora",
+        "type": "sare_blue",
+        "hours": "Mon–Fri 9–14 & 16–20, Sat 9–14",
+        "priceEurPerHour": 1.1,
+        "maxStayMin": 30,
+        "zbe": false,
+        "confidence": "inferred"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-4.4355, 36.7145], [-4.4285, 36.7145], [-4.4285, 36.7180],
+          [-4.4355, 36.7180], [-4.4355, 36.7145]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Urbanismo",
+        "type": "sare_blue",
+        "hours": "Mon–Fri 9–14 & 16–20, Sat 9–14",
+        "priceEurPerHour": 1.1,
+        "maxStayMin": 30,
+        "zbe": false,
+        "confidence": "inferred"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-4.4395, 36.7100], [-4.4285, 36.7100], [-4.4285, 36.7145],
+          [-4.4395, 36.7145], [-4.4395, 36.7100]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Babel",
+        "type": "sare_blue",
+        "hours": "Mon–Fri 9–14 & 16–20, Sat 9–14",
+        "priceEurPerHour": 1.1,
+        "maxStayMin": 30,
+        "zbe": false,
+        "confidence": "inferred"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-4.4680, 36.7065], [-4.4580, 36.7065], [-4.4580, 36.7135],
+          [-4.4680, 36.7135], [-4.4680, 36.7065]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Huelin",
+        "type": "sare_blue",
+        "hours": "Mon–Fri 9–14 & 16–20, Sat 9–14",
+        "priceEurPerHour": 1.1,
+        "maxStayMin": 30,
+        "zbe": false,
+        "confidence": "inferred"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-4.4460, 36.6990], [-4.4360, 36.6990], [-4.4360, 36.7060],
+          [-4.4460, 36.7060], [-4.4460, 36.6990]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Parque Tecnológico",
+        "type": "sare_blue",
+        "hours": "Mon–Fri 9–14 & 16–20, Sat 9–14",
+        "priceEurPerHour": 1.1,
+        "maxStayMin": 30,
+        "zbe": false,
+        "confidence": "inferred"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-4.4900, 36.6720], [-4.4620, 36.6720], [-4.4620, 36.6950],
+          [-4.4900, 36.6950], [-4.4900, 36.6720]
+        ]]
+      }
+    }
+  ]
+}

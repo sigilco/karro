@@ -8,10 +8,26 @@ import {
   RulesVerdict,
 } from './index'
 
-// API base: set ONE_PUBLIC_API_URL at build/runtime; same-origin '' in dev.
-const BASE = (globalThis as { __KARRO_API__?: string }).__KARRO_API__ ??
+// API base resolution order:
+// 1. `?api=<url>` query param (persists to localStorage) — lets the shim URL
+//    be attached to a deployed static build after the fact.
+// 2. localStorage.karro_api (sticky from a previous ?api= visit)
+// 3. ONE_PUBLIC_API_URL baked at build time
+// 4. '' (same origin)
+function resolveBase(): string {
+  if (typeof window === 'undefined') return ''
+  const param = new URLSearchParams(window.location.search).get('api')
+  if (param) {
+    const clean = param.replace(/\/$/, '')
+    window.localStorage.setItem('karro_api', clean)
+    return clean
+  }
+  return window.localStorage.getItem('karro_api') ?? ''
+}
+
+const BASE = resolveBase() ||
   (import.meta as unknown as { env: Record<string, string | undefined> }).env
-    ?.ONE_PUBLIC_API_URL ??
+    ?.ONE_PUBLIC_API_URL ||
   ''
 
 async function getJson<T>(path: string, schema: v.GenericSchema<T>): Promise<T> {

@@ -1,0 +1,24 @@
+[project]
+name = "karro-shim"
+version = "0.1.0"
+description = "Karro POC data shim — FastAPI /v1 surface over Málaga parking feeds"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.30",
+    "httpx>=0.27",
+    "tzdata>=2024.1",
+]
+
+[dependency-groups]
+dev = ["ruff>=0.6"]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["app"]
+
+[tool.ruff]
+line-length = 110
