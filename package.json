@@ -39,6 +39,8 @@
     "@types/react": "^19.2.2",
     "@typescript/native-preview": "latest",
     "babel-plugin-react-compiler": "^1.0.0",
+    "oxfmt": "^0.72.0",
+    "oxlint": "^1.87.0",
     "typescript": "7.0.2",
     "vite": "^8.2.2"
   }

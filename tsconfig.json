@@ -10,11 +10,23 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "baseUrl": ".",
     "paths": {
-      "~/*": ["./*"]
+      "~/*": [
+        "./*"
+      ]
     }
   },
-  "include": ["app", "packages", "vite.config.ts"],
-  "exclude": ["node_modules", "dist", "ios", "android", ".expo"]
+  "include": [
+    "app",
+    "packages",
+    "types",
+    "vite.config.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "ios",
+    "android",
+    ".expo"
+  ]
 }
