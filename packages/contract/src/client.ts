@@ -1,7 +1,9 @@
 import * as v from 'valibot'
 import {
+  EtaResponse,
   FacilitiesResponse,
   Forecast,
+  GeocodeResponse,
   HealthResponse,
   RulesVerdict,
 } from './index'
@@ -25,5 +27,9 @@ export const api = {
     getJson(`/v1/rules?lat=${lat}&lon=${lon}`, RulesVerdict),
   forecast: (city: string, date: string) =>
     getJson(`/v1/forecast/${city}/${date}`, Forecast),
+  eta: (fromLat: number, fromLon: number, toLat: number, toLon: number) =>
+    getJson(`/v1/eta?from_lat=${fromLat}&from_lon=${fromLon}&to_lat=${toLat}&to_lon=${toLon}`, EtaResponse),
+  geocode: (q: string) =>
+    getJson(`/v1/geocode?q=${encodeURIComponent(q)}`, GeocodeResponse),
   zonesGeoJson: () => fetch(`${BASE}/v1/zones.geojson`).then((r) => r.json()),
 }

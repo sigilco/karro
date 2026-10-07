@@ -46,6 +46,24 @@ export const RulesVerdict = v.object({
 })
 export type RulesVerdict = v.InferOutput<typeof RulesVerdict>
 
+export const EtaResponse = v.object({
+  driveMin: v.number(),
+  walkMin: v.number(),
+  source: v.picklist(['osrm', 'estimate']),
+})
+export type EtaResponse = v.InferOutput<typeof EtaResponse>
+
+export const GeocodeResponse = v.object({
+  results: v.array(
+    v.object({
+      name: v.string(),
+      lat: v.number(),
+      lon: v.number(),
+    })
+  ),
+})
+export type GeocodeResponse = v.InferOutput<typeof GeocodeResponse>
+
 export const HealthResponse = v.object({
   ok: v.boolean(),
   feedAgeS: v.number(),
