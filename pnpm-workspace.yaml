@@ -10,3 +10,12 @@ allowBuilds:
 
 patchedDependencies:
   '@react-native/gradle-plugin@0.87.1': patches/@react-native__gradle-plugin@0.87.1.patch
+
+publicHoistPattern:
+  - 'metro'
+  - 'metro-*'
+  - '@expo/metro-config'
+  - '@expo/cli'
+  - '@vxrn/vite-plugin-metro'
+  - 'babel-preset-expo'
+  - 'babel-plugin-module-resolver'

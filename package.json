@@ -14,7 +14,9 @@
     "generate-routes": "one generate-routes",
     "typecheck": "tsgo --noEmit",
     "lint": "oxlint",
-    "fmt": "oxfmt"
+    "fmt": "oxfmt",
+    "native:config": "one metro-eject",
+    "build:android": "one metro-eject && ./android/gradlew -p android assembleRelease"
   },
   "dependencies": {
     "@react-navigation/native": "~7.3.16",
@@ -36,21 +38,14 @@
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^5.20261007.1",
-    "@expo/cli": "58.0.0-canary-20260909-ea7a89a",
-    "@expo/metro-config": "58.0.0-canary-20260909-ea7a89a",
     "@react-native-community/cli": "^20.2.0",
     "@types/react": "^19.2.2",
     "@typescript/native-preview": "latest",
-    "@vxrn/vite-plugin-metro": "1.27.1",
-    "babel-plugin-module-resolver": "^5.0.3",
     "babel-plugin-react-compiler": "^1.0.0",
-    "babel-preset-expo": "^57.0.14",
-    "metro": "0.83.4",
     "oxfmt": "^0.72.0",
     "oxlint": "^1.87.0",
     "typescript": "7.0.2",
     "vite": "^8.2.2",
     "wrangler": "^4.148.0"
-  },
-  "main": "index.js"
+  }
 }
