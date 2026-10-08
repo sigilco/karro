@@ -2,17 +2,26 @@
 // For the Cloudflare Workers deployment see ./worker.ts.
 
 import { serve } from "@hono/node-server";
-import { createApiApp, createFeedState, pollOnce, POLL_INTERVAL_MS } from "./core";
+import {
+  createApiApp,
+  createFeedState,
+  createMemoryHistory,
+  pollOnce,
+  POLL_INTERVAL_MS,
+} from "./core.ts";
+import { runConnectorsDue } from "./sources/index.ts";
 
 const state = createFeedState();
-const app = createApiApp(state);
+const history = createMemoryHistory();
+const app = createApiApp(state, history);
 
 const tick = async () => {
   try {
-    await pollOnce(state);
+    await pollOnce(state, history);
   } catch (err) {
     console.warn("[karro-api] SMASSA poll failed, serving last-good data:", err);
   }
+  await runConnectorsDue(history);
 };
 void tick();
 // DOM lib types setInterval as returning number; under node it's a Timeout.

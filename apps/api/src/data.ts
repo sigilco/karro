@@ -300,3 +300,21 @@ export const ZONES: {
     },
   ],
 };
+
+// SARE curb capacity per sector — summed NORMALES+SARE30+MIXTAS from
+// data/plazas_sare.csv (bake 2026-10-08; ~2.8k of ~4.7k regulated spaces, the
+// sectors the city publishes). street-forecast uses this as the curb-supply
+// baseline that damps the roadwork penalty; keys are uppercase zone names.
+export const SECTOR_SPACES: Record<string, number> = {
+  ATARAZANAS: 116,
+  URBANISMO: 812,
+  SOHO: 366,
+  MALAGUETA: 732,
+  AURORA: 148,
+  BABEL: 147,
+  "EL CARMEN": 187,
+  "COMP. LEMBERG RUIZ": 93,
+  "PARQUE TECNOLOGICO": 108,
+  HUELIN: 58,
+  AYUNTAMIENTO: 34,
+};

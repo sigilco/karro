@@ -75,14 +75,36 @@ export type HealthResponse = v.InferOutput<typeof HealthResponse>;
 
 // Street-level forecast — optimistic: 'unknown/cold' means the model is
 // still collecting, so UI shows "gathering live data" rather than an error.
+// Optional signal fields describe external-source adjustments (weather,
+// holidays, roadworks) folded into difficulty — present when the API's
+// connectors have data.
 export const StreetForecast = v.object({
   difficulty: v.picklist(["EASY", "MEDIUM", "HARD", "unknown"]),
   confidence: v.picklist(["cold", "warm"]),
   events: v.number(),
   historyDays: v.number(),
   detail: v.string(),
+  // SARE curb spaces in the containing zone (null outside mapped zones)
+  curbSpaces: v.optional(v.nullable(v.number())),
+  // active roadworks/closures within 300 m at `at`
+  activeCortes: v.optional(v.nullable(v.number())),
+  // human-readable adjustments applied, e.g. "rain likely at that hour (72%, 1.2 mm)"
+  signals: v.optional(v.array(v.string())),
 });
 export type StreetForecast = v.InferOutput<typeof StreetForecast>;
+
+// /v1/signals — connector status for ops/debugging.
+export const SignalsResponse = v.object({
+  generatedAt: v.string(),
+  sources: v.array(
+    v.object({
+      source: v.string(),
+      rows: v.number(),
+      lastPollMs: v.number(),
+    }),
+  ),
+});
+export type SignalsResponse = v.InferOutput<typeof SignalsResponse>;
 
 export const Forecast = v.object({
   city: v.string(),

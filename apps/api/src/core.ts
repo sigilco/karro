@@ -4,7 +4,9 @@
 
 import { Hono } from "hono";
 import { cors } from "hono/cors";
-import { CATALOG as CATALOG_ROWS, ZONES } from "./data";
+import { CATALOG as CATALOG_ROWS, SECTOR_SPACES, ZONES } from "./data.ts";
+import type { ExtSignalRow } from "./sources/types.ts";
+import { haversineKm, madridDayKey } from "./sources/util.ts";
 
 export const SMASSA_OCCUPANCY_URL =
   "https://datosabiertos.malaga.eu/recursos/aparcamientos/ocupappublicosmun/ocupappublicosmun.csv";
@@ -158,6 +160,16 @@ export interface HistoryStore {
   historyDepthDays(): number;
   /** park/depart events within radiusKm of a point */
   parkEventCount(lat: number, lon: number, radiusKm: number): number;
+  // ── External signals (Part B) — optional: the node dev entry can run
+  // without them. SqlHistory persists them in ext_signal.
+  /** Replace a source's whole snapshot (bounded: ~latest rows only). */
+  replaceSignals?(source: string, rows: ExtSignalRow[], nowMs: number): void;
+  /** Latest snapshot rows for one source. */
+  signals?(source: string): ExtSignalRow[];
+  /** ms of the source's last successful poll (0 = never). */
+  signalLastPollMs?(source: string): number;
+  /** Per-source row count + freshness for /v1/signals. */
+  signalStats?(): { source: string; rows: number; lastPollMs: number }[];
 }
 
 export function madridHourOfWeek(ts: number): number {
@@ -173,18 +185,83 @@ export function madridHourOfWeek(ts: number): number {
   return Math.max(0, wd) * 24 + h;
 }
 
-// ── Helpers ─────────────────────────────────────────────────────────────────
-
-function haversineKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
-  const r = 6371;
-  const rad = (d: number) => (d * Math.PI) / 180;
-  const p1 = rad(lat1);
-  const p2 = rad(lat2);
-  const dp = rad(lat2 - lat1);
-  const dl = rad(lon2 - lon1);
-  const a = Math.sin(dp / 2) ** 2 + Math.cos(p1) * Math.cos(p2) * Math.sin(dl / 2) ** 2;
-  return 2 * r * Math.asin(Math.sqrt(a));
+// In-memory HistoryStore for the node dev entry — same semantics as
+// SqlHistory, unbounded-ish but fine for local runs (it dies with the process).
+export function createMemoryHistory(): Required<HistoryStore> {
+  const minute: { ts: number; id: string; libres: number }[] = [];
+  const hourAgg = new Map<
+    string,
+    { how: number; sum: number; n: number; min: number; max: number; hourTs: number }
+  >();
+  const parkEvents: { ts: number; kind: string; lat: number; lon: number }[] = [];
+  const signals = new Map<string, ExtSignalRow[]>();
+  const lastPoll = new Map<string, number>();
+  return {
+    recordPoll(nowMs, snap) {
+      const hourTs = Math.floor(nowMs / 3_600_000) * 3_600_000;
+      for (const [id, libres] of snap) {
+        minute.push({ ts: nowMs, id, libres });
+        const k = `${id}|${hourTs}`;
+        const a = hourAgg.get(k) ?? {
+          how: madridHourOfWeek(hourTs + 1_800_000),
+          sum: 0,
+          n: 0,
+          min: Infinity,
+          max: -Infinity,
+          hourTs,
+        };
+        a.sum += libres;
+        a.n++;
+        a.min = Math.min(a.min, libres);
+        a.max = Math.max(a.max, libres);
+        hourAgg.set(k, a);
+      }
+      const cutoff = nowMs - 30 * 24 * 3_600_000;
+      while (minute.length && minute[0].ts < cutoff) minute.shift();
+    },
+    recordParkEvent(e) {
+      parkEvents.push(e);
+    },
+    hourlyBaseline(id, how) {
+      let sum = 0;
+      let n = 0;
+      // per-hour aggregates keyed `${id}|${hourTs}` — mean of hourly means
+      for (const [k, a] of hourAgg) {
+        if (k.startsWith(`${id}|`) && a.how === how) {
+          sum += a.sum / a.n;
+          n++;
+        }
+      }
+      return n > 0 ? sum / n : null;
+    },
+    historyDepthDays() {
+      let lo = Infinity;
+      let hi = -Infinity;
+      for (const a of hourAgg.values()) {
+        lo = Math.min(lo, a.hourTs);
+        hi = Math.max(hi, a.hourTs);
+      }
+      return hi > lo ? (hi - lo) / (24 * 3_600_000) : 0;
+    },
+    parkEventCount(lat, lon, radiusKm) {
+      return parkEvents.filter((e) => haversineKm(lat, lon, e.lat, e.lon) <= radiusKm).length;
+    },
+    replaceSignals(source, rows, nowMs) {
+      signals.set(source, rows);
+      lastPoll.set(source, nowMs);
+    },
+    signals: (source) => signals.get(source) ?? [],
+    signalLastPollMs: (source) => lastPoll.get(source) ?? 0,
+    signalStats: () =>
+      [...signals.keys()].map((s) => ({
+        source: s,
+        rows: signals.get(s)?.length ?? 0,
+        lastPollMs: lastPoll.get(s) ?? 0,
+      })),
+  };
 }
+
+// ── Helpers ─────────────────────────────────────────────────────────────────
 
 function slopePerMin(samples: { ts: number; libres: number }[], nowMs: number): number | null {
   const pts = samples.filter((s) => nowMs - s.ts <= VELOCITY_WINDOW_MS);
@@ -547,6 +624,16 @@ export function createApiApp(state: FeedState, history?: HistoryStore): Hono {
   // Optimistic street-level forecast for a point: difficulty + confidence.
   // Cold start is a feature, not an error — "collecting" tells the user the
   // model is filling in, matching the speculative-response UX.
+  // Part B: external signals (weather / holidays / roadworks) adjust the
+  // garage-seasonal base difficulty, and the containing SARE zone's curb
+  // capacity scales the roadwork penalty.
+  app.get("/v1/signals", (c) => {
+    return c.json({
+      generatedAt: madridParts().iso,
+      sources: history?.signalStats?.() ?? [],
+    });
+  });
+
   app.get("/v1/street-forecast", (c) => {
     const lat = Number(c.req.query("lat"));
     const lon = Number(c.req.query("lon"));
@@ -577,17 +664,83 @@ export function createApiApp(state: FeedState, history?: HistoryStore): Hono {
       }
     }
 
+    // ── External signals ────────────────────────────────────────────────
+    // bump shifts the EASY→MEDIUM→HARD ladder; signals[] explains why.
+    const signals: string[] = [];
+    let bump = 0;
+
+    // Weather: rain pushes demand from curb to covered parking and slows
+    // turnover — one level harder when the forecast hour is wet.
+    const wxRows = history?.signals?.("openmeteo") ?? [];
+    const wx = wxRows.find(
+      (r) => r.fromMs !== undefined && at >= r.fromMs && at < (r.toMs ?? r.fromMs + 3_600_000),
+    );
+    if (wx && (wx.valueNum ?? 0) >= 60) {
+      const rainMm = wx.valueJson
+        ? ((JSON.parse(wx.valueJson) as { rainMm?: number }).rainMm ?? 0)
+        : 0;
+      bump += rainMm >= 1 ? 2 : 1;
+      signals.push(`rain likely at that hour (${wx.valueNum}%, ${rainMm} mm)`);
+    } else if (wx && (wx.valueNum ?? 0) >= 35) {
+      signals.push(`possible rain at that hour (${wx.valueNum}%)`);
+    }
+
+    // Holidays: SARE enforcement is off (L-V / S-D-F tariff split), so more
+    // curb is free-to-use — one level easier, flagged in the detail.
+    const holRows = history?.signals?.("holidays") ?? [];
+    const hol = holRows.find((r) => r.key === madridDayKey(at));
+    if (hol) {
+      bump -= 1;
+      const name = hol.valueJson
+        ? ((JSON.parse(hol.valueJson) as { name?: string }).name ?? "public holiday")
+        : "public holiday";
+      signals.push(`${name} — SARE not enforced, free curb`);
+    }
+
+    // Roadworks: cortes within 300 m eat curb capacity. Weighted by
+    // TIPOAFECTACION (parking occupation counts double) and damped by the
+    // containing SARE sector's known curb supply.
+    const cortesRows = history?.signals?.("cortes") ?? [];
+    const zone = Number.isFinite(lat) ? findZone(lat, lon) : null;
+    const zoneName = String(zone?.properties?.name ?? "");
+    const curbSpaces = SECTOR_SPACES[zoneName.toUpperCase()] ?? null;
+    let activeCortes = 0;
+    let corteWeight = 0;
+    for (const r of cortesRows) {
+      if (r.fromMs !== undefined && at < r.fromMs) continue;
+      if (r.toMs !== undefined && at > r.toMs) continue;
+      const j = r.valueJson ? (JSON.parse(r.valueJson) as { lat?: number; lon?: number }) : null;
+      if (j?.lat == null || j?.lon == null) continue;
+      if (haversineKm(lat, lon, j.lat, j.lon) <= 0.3) {
+        activeCortes++;
+        corteWeight += r.valueNum ?? 1;
+      }
+    }
+    if (activeCortes > 0) {
+      const damp = curbSpaces !== null && curbSpaces > 400 ? 0.5 : 1;
+      const eff = corteWeight * damp;
+      bump += eff >= 3 ? 2 : 1;
+      signals.push(`${activeCortes} active roadwork${activeCortes === 1 ? "" : "s"} within 300 m`);
+    }
+
     if (ratioN === 0 && events === 0) {
       return c.json({
         difficulty: "unknown",
         confidence: "cold",
         events,
         historyDays: depthDays,
-        detail: "collecting live data for this area — predictions sharpen as coverage builds",
+        curbSpaces,
+        activeCortes,
+        signals,
+        detail:
+          "collecting live data for this area — predictions sharpen as coverage builds" +
+          (signals.length ? ` (${signals.join("; ")})` : ""),
       });
     }
     const areaRatio = ratioN > 0 ? ratioSum / ratioN : 0.15;
-    const difficulty = areaRatio > 0.15 ? "EASY" : areaRatio < 0.05 ? "HARD" : "MEDIUM";
+    const LADDER = ["EASY", "MEDIUM", "HARD"] as const;
+    const base = areaRatio > 0.15 ? 0 : areaRatio < 0.05 ? 2 : 1;
+    const difficulty = LADDER[Math.min(2, Math.max(0, base + bump))];
     const confidence = depthDays < 7 ? "cold" : events > 0 ? "warm" : "cold";
     const basis =
       ratioN > 0
@@ -598,7 +751,12 @@ export function createApiApp(state: FeedState, history?: HistoryStore): Hono {
       confidence,
       events,
       historyDays: Math.round(depthDays * 10) / 10,
-      detail: `${basis} — ${difficulty.toLowerCase()} near destination at this hour`,
+      curbSpaces,
+      activeCortes,
+      signals,
+      detail:
+        `${basis} — ${difficulty.toLowerCase()} near destination at this hour` +
+        (signals.length ? ` (${signals.join("; ")})` : ""),
     });
   });
 

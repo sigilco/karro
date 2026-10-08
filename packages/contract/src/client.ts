@@ -6,6 +6,7 @@ import {
   GeocodeResponse,
   HealthResponse,
   RulesVerdict,
+  SignalsResponse,
   StreetForecast,
 } from "./index";
 
@@ -51,6 +52,7 @@ export const api = {
   zonesGeoJson: () => fetch(`${BASE}/v1/zones.geojson`).then((r) => r.json()),
   streetForecast: (lat: number, lon: number, at?: number) =>
     getJson(`/v1/street-forecast?lat=${lat}&lon=${lon}${at ? `&at=${at}` : ""}`, StreetForecast),
+  signals: () => getJson("/v1/signals", SignalsResponse),
   // fire-and-forget park/depart telemetry; never throws into the UI
   postObservation: (kind: "park" | "depart", lat: number, lon: number, clientId?: string) =>
     fetch(`${BASE}/v1/observations`, {

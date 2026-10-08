@@ -13,8 +13,10 @@ import {
   pollOnce,
   restoreState,
   serializeState,
-} from "./core";
-import type { FeedState as ApiState, HistoryStore } from "./core";
+} from "./core.ts";
+import type { FeedState as ApiState, HistoryStore } from "./core.ts";
+import { runConnectorsDue } from "./sources/index.ts";
+import type { ExtSignalRow } from "./sources/types.ts";
 
 interface Env {
   FEED: DurableObjectNamespace;
@@ -52,10 +54,25 @@ class SqlHistory implements HistoryStore {
     );
     sql.exec("CREATE INDEX IF NOT EXISTS park_events_ts ON park_events(ts)");
     sql.exec("CREATE TABLE IF NOT EXISTS meta (k TEXT PRIMARY KEY, v INTEGER NOT NULL)");
+    // External-signal snapshots, one row per (source, key). Each connector's
+    // poll replaces its whole source set, so the table stays bounded to
+    // snapshot size (weather ~72, holidays ~35, cortes ~150); per-source
+    // freshness lives in meta as lastPoll:<source>.
+    sql.exec(
+      `CREATE TABLE IF NOT EXISTS ext_signal (
+        source TEXT NOT NULL, key TEXT NOT NULL,
+        valid_from INTEGER, valid_to INTEGER,
+        value_num REAL, value_json TEXT,
+        PRIMARY KEY (source, key)
+      )`,
+    );
+    sql.exec("CREATE INDEX IF NOT EXISTS ext_signal_src ON ext_signal(source)");
   }
 
   private metaGet(k: string): number {
-    return Number(this.sql.exec("SELECT v FROM meta WHERE k = ?", k).one()?.v ?? 0);
+    // .one() throws on empty results — meta keys may not exist yet
+    const row = this.sql.exec("SELECT v FROM meta WHERE k = ?", k).toArray()[0];
+    return Number(row?.v ?? 0);
   }
 
   private metaSet(k: string, v: number): void {
@@ -146,6 +163,55 @@ class SqlHistory implements HistoryStore {
       e.clientId ?? null,
     );
   }
+
+  replaceSignals(source: string, rows: ExtSignalRow[], nowMs: number): void {
+    this.sql.exec("DELETE FROM ext_signal WHERE source = ?", source);
+    for (const r of rows) {
+      this.sql.exec(
+        `INSERT INTO ext_signal (source, key, valid_from, valid_to, value_num, value_json)
+         VALUES (?, ?, ?, ?, ?, ?)`,
+        source,
+        r.key,
+        r.fromMs ?? null,
+        r.toMs ?? null,
+        r.valueNum ?? null,
+        r.valueJson ?? null,
+      );
+    }
+    this.metaSet(`lastPoll:${source}`, nowMs);
+  }
+
+  signals(source: string): ExtSignalRow[] {
+    return this.sql
+      .exec(
+        `SELECT key, valid_from, valid_to, value_num, value_json
+         FROM ext_signal WHERE source = ?`,
+        source,
+      )
+      .toArray()
+      .map((r) => ({
+        key: String(r.key),
+        fromMs: r.valid_from == null ? undefined : Number(r.valid_from),
+        toMs: r.valid_to == null ? undefined : Number(r.valid_to),
+        valueNum: r.value_num == null ? undefined : Number(r.value_num),
+        valueJson: r.value_json == null ? undefined : String(r.value_json),
+      }));
+  }
+
+  signalLastPollMs(source: string): number {
+    return this.metaGet(`lastPoll:${source}`);
+  }
+
+  signalStats(): { source: string; rows: number; lastPollMs: number }[] {
+    return this.sql
+      .exec("SELECT source, COUNT(*) n FROM ext_signal GROUP BY source ORDER BY source")
+      .toArray()
+      .map((r) => ({
+        source: String(r.source),
+        rows: Number(r.n),
+        lastPollMs: this.metaGet(`lastPoll:${String(r.source)}`),
+      }));
+  }
 }
 
 export class FeedDO implements DurableObject {
@@ -177,13 +243,21 @@ export class FeedDO implements DurableObject {
   async fetch(request: Request): Promise<Response> {
     const url = new URL(request.url);
     if (url.pathname === "/v1/internal/poll") {
+      // SMASSA poll and connector polls are independent: a failure in either
+      // must not block the other. Connectors run at their own cadence via
+      // lastPoll:<source> in meta.
+      let smassaErr: string | null = null;
       try {
         await pollOnce(this.state, this.history);
         this.ctx.storage.put("feedState", serializeState(this.state));
-        return Response.json({ ok: true });
       } catch (err) {
-        return Response.json({ ok: false, error: String(err) }, { status: 502 });
+        smassaErr = String(err);
       }
+      const connectors = await runConnectorsDue(this.history);
+      if (smassaErr) {
+        return Response.json({ ok: false, error: smassaErr, connectors }, { status: 502 });
+      }
+      return Response.json({ ok: true, connectors });
     }
     return this.app.fetch(request);
   }

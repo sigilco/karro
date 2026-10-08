@@ -9,3 +9,4 @@ android/
 !.env.example
 app/routes.d.ts
 .DS_Store
+.wrangler/
