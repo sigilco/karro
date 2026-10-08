@@ -5,9 +5,13 @@ import type { Facility } from "~/packages/contract/src/index";
 import { api } from "~/packages/contract/src/client";
 import { Badge, Button, Card, Sheet, useWatchPosition } from "~/packages/ui";
 import { FacilityMap } from "~/components/map/FacilityMap";
-import { nearestFacilities, projectedAtMin } from "./geo";
+import { haversineMeters, nearestFacilities, projectedAtMin } from "./geo";
 import { toneForVerdict, verdictForProjected } from "./verdict";
 import { announceDelta, resetDeltaSignature, setVoiceEnabled, speakNow, voiceEnabled } from "./tts";
+import { appleMapsUrl, googleMapsUrl, wazeUrl } from "./navLinks";
+import { pingOnce, playArrivalChime } from "./ping";
+
+const ARRIVAL_RADIUS_M = 400;
 
 const STALE_AFTER_S = 300;
 // ~500m grid — ETA doesn't refetch on every GPS tick, only on real movement.
@@ -99,6 +103,15 @@ export function DriveScreen(props: {
     );
   }
 
+  // Arrival ping: chime once when the driver closes within 400m of the target.
+  const arriving =
+    origin !== undefined &&
+    target !== undefined &&
+    haversineMeters(origin.lat, origin.lon, target.lat, target.lon) <= ARRIVAL_RADIUS_M;
+  if (arriving && target && pingOnce(`arrive:${target.id}`)) {
+    playArrivalChime();
+  }
+
   function retarget(f: Facility) {
     router.replace(`/drive?to=${f.id}&lat=${f.lat}&lon=${f.lon}`);
   }
@@ -173,7 +186,10 @@ export function DriveScreen(props: {
           ) : (
             <div className="flex items-center gap-4">
               <div className="min-w-0 flex-1">
-                <p className="truncate text-base font-semibold text-ink">{target.name}</p>
+                <p className="truncate text-base font-semibold text-ink">
+                  {arriving ? "Arriving · " : ""}
+                  {target.name}
+                </p>
                 <p className="text-sm text-ink-dim">
                   {driveMin !== undefined ? `${Math.round(driveMin)} min` : "… min"}
                   {target.available !== null ? ` · ${target.available} now` : ""}
@@ -208,6 +224,34 @@ export function DriveScreen(props: {
             no alternative yet
           </Button>
         )}
+        {/* companion-mode handoff — Karro picks the spot, nav apps drive */}
+        <div className="mt-2 grid grid-cols-3 gap-2">
+          <a
+            href={googleMapsUrl({ lat: target.lat, lon: target.lon, name: target.name })}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex h-10 items-center justify-center rounded-xl bg-accent/15 text-xs font-semibold text-ink"
+          >
+            G Maps
+          </a>
+          <a
+            href={appleMapsUrl({ lat: target.lat, lon: target.lon, name: target.name })}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex h-10 items-center justify-center rounded-xl bg-accent/15 text-xs font-semibold text-ink"
+          >
+            Apple Maps
+          </a>
+          <a
+            href={wazeUrl({ lat: target.lat, lon: target.lon, name: target.name })}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex h-10 items-center justify-center rounded-xl bg-accent/15 text-xs font-semibold text-ink"
+          >
+            Waze
+          </a>
+        </div>
+
         <div className="mt-2 flex gap-2">
           <Button variant="ghost" className="flex-1" onClick={handleEndDrive}>
             End drive

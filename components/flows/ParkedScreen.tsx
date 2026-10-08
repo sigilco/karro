@@ -6,6 +6,7 @@ import type { Facility } from "~/packages/contract/src/index";
 import { Badge, Button, Card, useNow } from "~/packages/ui";
 import { FacilityMap } from "~/components/map/FacilityMap";
 import { clearParkedSpot, loadParkedSpot, saveParkedSpot, type ParkedSpot } from "./parkedSpot";
+import { getClientId } from "./clientId";
 import type { BadgeTone } from "~/packages/ui";
 
 const verdictTone: Record<string, BadgeTone> = {
@@ -48,6 +49,7 @@ export function ParkedScreen(props: {
     saveParkedSpot(next);
     setSpot(next);
     setError(undefined);
+    void api.postObservation("park", lat, lon, getClientId());
   }
 
   function handleMarkParked() {
@@ -67,6 +69,7 @@ export function ParkedScreen(props: {
   }
 
   function handleClear() {
+    if (spot) void api.postObservation("depart", spot.lat, spot.lon, getClientId());
     clearParkedSpot();
     setSpot(undefined);
   }

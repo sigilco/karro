@@ -120,7 +120,7 @@ function ingestPoll(state: FeedState, nowMs: number, rows: { fid: string; libres
   while (state.ring.length && nowMs - state.ring[0].ts > RING_WINDOW_MS) state.ring.shift();
 }
 
-export async function pollOnce(state: FeedState): Promise<void> {
+export async function pollOnce(state: FeedState, history?: HistoryStore): Promise<void> {
   const res = await fetch(SMASSA_OCCUPANCY_URL, {
     headers: { "user-agent": USER_AGENT },
     signal: AbortSignal.timeout(20_000),
@@ -133,7 +133,44 @@ export async function pollOnce(state: FeedState): Promise<void> {
   if (rows.length) {
     ingestPoll(state, Date.now(), rows);
     state.lastGoodPollMs = Date.now();
+    history?.recordPoll(Date.now(), state.lastPollSnapshot);
   }
+}
+
+// ── History (long-horizon persistence — DO SQLite in prod) ───────────────────
+// Seasonal predictions need 1y+ of observations; the 30-min ring can't hold
+// that, so each poll is appended to obs_minute and rolled up hourly into
+// obs_hour (hourOfWeek 0–167, Madrid time). User park/depart reports land in
+// park_events — the seed for street-level availability once coverage accrues.
+
+export interface HistoryStore {
+  recordPoll(nowMs: number, snapshot: ReadonlyMap<string, number>): void;
+  recordParkEvent(e: {
+    ts: number;
+    kind: "park" | "depart";
+    lat: number;
+    lon: number;
+    clientId?: string;
+  }): void;
+  /** avg free spaces for a facility at this hour-of-week (0–167), null when cold */
+  hourlyBaseline(id: string, hourOfWeek: number): number | null;
+  /** days of hourly rollups on record */
+  historyDepthDays(): number;
+  /** park/depart events within radiusKm of a point */
+  parkEventCount(lat: number, lon: number, radiusKm: number): number;
+}
+
+export function madridHourOfWeek(ts: number): number {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "Europe/Madrid",
+    weekday: "short",
+    hour: "2-digit",
+    hour12: false,
+  }).formatToParts(new Date(ts));
+  const get = (t: string) => parts.find((p) => p.type === t)?.value ?? "";
+  const wd = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].indexOf(get("weekday"));
+  const h = Number(get("hour")) % 24;
+  return Math.max(0, wd) * 24 + h;
 }
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
@@ -227,7 +264,7 @@ function sareEnforcedNow(): boolean {
 
 // ── App factory ──────────────────────────────────────────────────────────────
 
-export function createApiApp(state: FeedState): Hono {
+export function createApiApp(state: FeedState, history?: HistoryStore): Hono {
   const app = new Hono();
   app.use("*", cors({ origin: "*" }));
   app.onError((err, c) => c.json({ error: String(err) }, 500));
@@ -239,6 +276,7 @@ export function createApiApp(state: FeedState): Hono {
       feedAgeS: state.lastGoodPollMs ? Math.round((now - state.lastGoodPollMs) / 100) / 10 : -1,
       observations: state.observationsTotal,
       uptimeS: Math.round((now - state.startMs) / 100) / 10,
+      historyDays: history?.historyDepthDays() ?? 0,
     });
   });
 
@@ -430,9 +468,36 @@ export function createApiApp(state: FeedState): Hono {
       verdict = "MEDIUM";
       detail = "Live SMASSA feed unavailable — no reliable forecast; check again shortly.";
     } else {
-      const ratio = projectedMin / totalCap;
+      // Blend the 20-min velocity projection with the seasonal (same
+      // hour-of-week) baseline once history accrues — recent trend leads,
+      // seasonal stabilizes: weight capped at 0.5 and ramps over ~3 weeks.
+      const depthDays = history?.historyDepthDays() ?? 0;
+      const how = madridHourOfWeek(now);
+      let seasonalSum = 0;
+      let seasonalN = 0;
+      if (history) {
+        for (const fid of perId.keys()) {
+          const b = history.hourlyBaseline(fid, how);
+          if (b !== null) {
+            seasonalSum += b;
+            seasonalN++;
+          }
+        }
+      }
+      const blended =
+        seasonalN > 0 && depthDays > 0
+          ? Math.round(
+              projectedMin * (1 - Math.min(0.5, depthDays / 42)) +
+                seasonalSum * Math.min(0.5, depthDays / 42),
+            )
+          : projectedMin;
+      const ratio = blended / totalCap;
       verdict = ratio > 0.15 ? "EASY" : ratio < 0.05 ? "HARD" : "MEDIUM";
-      detail = `${state.lastPollSnapshot.size} garages reporting: ~${totalNow} free now, ~${projectedMin} projected in 20 min (${Math.round(ratio * 100)}% of capacity).`;
+      const basis =
+        seasonalN > 0
+          ? ` (~${blended} blended with ${Math.round(depthDays)}d same-hour history)`
+          : "";
+      detail = `${state.lastPollSnapshot.size} garages reporting: ~${totalNow} free now, ~${blended} projected in 20 min (${Math.round(ratio * 100)}% of capacity)${basis}.`;
     }
     let arriveBy: string | null = null;
     if (verdict !== "EASY") {
@@ -447,6 +512,93 @@ export function createApiApp(state: FeedState): Hono {
       verdict,
       arriveBy,
       detail,
+    });
+  });
+
+  // Street-parking telemetry: user park/depart reports. These accumulate
+  // into the street-forecast model — the data moat starts here.
+  app.post("/v1/observations", async (c) => {
+    if (!history) return c.json({ error: "history not enabled" }, 501);
+    const body = (await c.req.json().catch(() => null)) as {
+      kind?: string;
+      lat?: number;
+      lon?: number;
+      ts?: number;
+      clientId?: string;
+    } | null;
+    if (
+      !body ||
+      (body.kind !== "park" && body.kind !== "depart") ||
+      !Number.isFinite(body.lat) ||
+      !Number.isFinite(body.lon)
+    ) {
+      return c.json({ error: "expected {kind: 'park'|'depart', lat, lon}" }, 400);
+    }
+    history.recordParkEvent({
+      ts: Number.isFinite(body.ts) ? Number(body.ts) : Date.now(),
+      kind: body.kind,
+      lat: Number(body.lat),
+      lon: Number(body.lon),
+      clientId: typeof body.clientId === "string" ? body.clientId.slice(0, 64) : undefined,
+    });
+    return c.json({ ok: true }, 202);
+  });
+
+  // Optimistic street-level forecast for a point: difficulty + confidence.
+  // Cold start is a feature, not an error — "collecting" tells the user the
+  // model is filling in, matching the speculative-response UX.
+  app.get("/v1/street-forecast", (c) => {
+    const lat = Number(c.req.query("lat"));
+    const lon = Number(c.req.query("lon"));
+    const at = Number(c.req.query("at")) || Date.now();
+    if (!Number.isFinite(lat) || !Number.isFinite(lon)) {
+      return c.json({ error: "missing lat/lon" }, 400);
+    }
+    const depthDays = history?.historyDepthDays() ?? 0;
+    const events = history?.parkEventCount(lat, lon, 0.5) ?? 0;
+    const how = madridHourOfWeek(at);
+
+    // Area-pressure proxy: seasonal baseline of the 3 nearest garages,
+    // expressed as free-capacity ratio — street pressure tracks it.
+    const byDist = [...CATALOG.values()]
+      .map((g) => ({ g, d: haversineKm(lat, lon, g.lat, g.lon) }))
+      .sort((a, b) => a.d - b.d)
+      .slice(0, 3);
+    let ratioSum = 0;
+    let ratioN = 0;
+    if (history) {
+      for (const { g } of byDist) {
+        const base = history.hourlyBaseline(g.id, how);
+        const cap = state.observedMax.get(g.id);
+        if (base !== null && cap && cap > 0) {
+          ratioSum += base / cap;
+          ratioN++;
+        }
+      }
+    }
+
+    if (ratioN === 0 && events === 0) {
+      return c.json({
+        difficulty: "unknown",
+        confidence: "cold",
+        events,
+        historyDays: depthDays,
+        detail: "collecting live data for this area — predictions sharpen as coverage builds",
+      });
+    }
+    const areaRatio = ratioN > 0 ? ratioSum / ratioN : 0.15;
+    const difficulty = areaRatio > 0.15 ? "EASY" : areaRatio < 0.05 ? "HARD" : "MEDIUM";
+    const confidence = depthDays < 7 ? "cold" : events > 0 ? "warm" : "cold";
+    const basis =
+      ratioN > 0
+        ? `${ratioN} garage seasonal baselines${events ? ` + ${events} street reports` : ""}`
+        : `${events} street reports`;
+    return c.json({
+      difficulty,
+      confidence,
+      events,
+      historyDays: Math.round(depthDays * 10) / 10,
+      detail: `${basis} — ${difficulty.toLowerCase()} near destination at this hour`,
     });
   });
 

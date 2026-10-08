@@ -1,4 +1,4 @@
-import { useQueries } from "@tanstack/react-query";
+import { useQueries, useQuery } from "@tanstack/react-query";
 import type { Facility } from "~/packages/contract/src/index";
 import { api } from "~/packages/contract/src/client";
 import { Badge, Button, Card } from "~/packages/ui";
@@ -24,6 +24,17 @@ export function FacilityDifficultyList(props: {
       retry: 1,
     })),
   });
+
+  // On-street forecast for the destination — optimistic: cold/unknown still
+  // renders as "collecting" so the panel never dead-ends on missing data.
+  const streetQ = useQuery({
+    queryKey: ["street-forecast", dest.lat, dest.lon],
+    queryFn: () => api.streetForecast(dest.lat, dest.lon),
+    staleTime: 60_000,
+    retry: 1,
+  });
+  const street = streetQ.data;
+  const streetCollecting = !street || street.difficulty === "unknown";
 
   if (top.length === 0) {
     return (
@@ -64,6 +75,30 @@ export function FacilityDifficultyList(props: {
             </li>
           );
         })}
+        {/* on-street forecast — speculative until history accrues */}
+        <li className="flex items-center gap-3 px-4 py-3">
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-base font-semibold text-ink">On-street nearby</p>
+            <p className="text-sm text-ink-dim">
+              {streetCollecting ? "collecting live data for this area…" : (street?.detail ?? "")}
+            </p>
+          </div>
+          {streetCollecting ? (
+            <Badge tone="neutral">collecting</Badge>
+          ) : (
+            <Badge
+              tone={
+                street?.difficulty === "EASY"
+                  ? "easy"
+                  : street?.difficulty === "MEDIUM"
+                    ? "medium"
+                    : "hard"
+              }
+            >
+              {street?.difficulty}
+            </Badge>
+          )}
+        </li>
       </ul>
     </Card>
   );

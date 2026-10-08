@@ -1,4 +1,4 @@
-import * as v from 'valibot'
+import * as v from "valibot";
 
 // ── Wire schemas shared between the API shim and the app client ───────────
 // These ARE the API contract — change only by editing this file (parent owns it).
@@ -8,7 +8,7 @@ export const Facility = v.object({
   name: v.string(),
   lat: v.number(),
   lon: v.number(),
-  kind: v.picklist(['garage', 'lot', 'free_area', 'street_metered']),
+  kind: v.picklist(["garage", "lot", "free_area", "street_metered"]),
   capacity: v.nullable(v.number()),
   available: v.nullable(v.number()),
   // velocity: spots/min over the shim's rolling window; negative = filling
@@ -18,15 +18,15 @@ export const Facility = v.object({
   pmrSpaces: v.optional(v.number()),
   priceEurPerHour: v.optional(v.number()),
   dataAgeS: v.number(),
-})
-export type Facility = v.InferOutput<typeof Facility>
+});
+export type Facility = v.InferOutput<typeof Facility>;
 
 export const FacilitiesResponse = v.object({
   city: v.string(),
   generatedAt: v.string(),
   facilities: v.array(Facility),
-})
-export type FacilitiesResponse = v.InferOutput<typeof FacilitiesResponse>
+});
+export type FacilitiesResponse = v.InferOutput<typeof FacilitiesResponse>;
 
 export const ZoneRegime = v.object({
   type: v.string(), // 'sare_blue' | 'sare_green' | 'free' | 'loading' | 'resident' …
@@ -34,24 +34,24 @@ export const ZoneRegime = v.object({
   priceEurPerHour: v.nullable(v.number()),
   maxStayMin: v.nullable(v.number()),
   zbe: v.boolean(),
-})
-export type ZoneRegime = v.InferOutput<typeof ZoneRegime>
+});
+export type ZoneRegime = v.InferOutput<typeof ZoneRegime>;
 
 export const RulesVerdict = v.object({
-  verdict: v.picklist(['legal', 'paid', 'restricted', 'unknown']),
+  verdict: v.picklist(["legal", "paid", "restricted", "unknown"]),
   zoneType: v.nullable(v.string()),
   detail: v.string(), // "SARE zona azul — paid until 20:00, max 2h"
-  confidence: v.picklist(['verified', 'crowd', 'inferred']),
+  confidence: v.picklist(["verified", "crowd", "inferred"]),
   source: v.string(),
-})
-export type RulesVerdict = v.InferOutput<typeof RulesVerdict>
+});
+export type RulesVerdict = v.InferOutput<typeof RulesVerdict>;
 
 export const EtaResponse = v.object({
   driveMin: v.number(),
   walkMin: v.number(),
-  source: v.picklist(['osrm', 'estimate']),
-})
-export type EtaResponse = v.InferOutput<typeof EtaResponse>
+  source: v.picklist(["osrm", "estimate"]),
+});
+export type EtaResponse = v.InferOutput<typeof EtaResponse>;
 
 export const GeocodeResponse = v.object({
   results: v.array(
@@ -59,30 +59,42 @@ export const GeocodeResponse = v.object({
       name: v.string(),
       lat: v.number(),
       lon: v.number(),
-    })
+    }),
   ),
-})
-export type GeocodeResponse = v.InferOutput<typeof GeocodeResponse>
+});
+export type GeocodeResponse = v.InferOutput<typeof GeocodeResponse>;
 
 export const HealthResponse = v.object({
   ok: v.boolean(),
   feedAgeS: v.number(),
   observations: v.number(),
   uptimeS: v.number(),
-})
-export type HealthResponse = v.InferOutput<typeof HealthResponse>
+  historyDays: v.optional(v.number()),
+});
+export type HealthResponse = v.InferOutput<typeof HealthResponse>;
+
+// Street-level forecast — optimistic: 'unknown/cold' means the model is
+// still collecting, so UI shows "gathering live data" rather than an error.
+export const StreetForecast = v.object({
+  difficulty: v.picklist(["EASY", "MEDIUM", "HARD", "unknown"]),
+  confidence: v.picklist(["cold", "warm"]),
+  events: v.number(),
+  historyDays: v.number(),
+  detail: v.string(),
+});
+export type StreetForecast = v.InferOutput<typeof StreetForecast>;
 
 export const Forecast = v.object({
   city: v.string(),
   date: v.string(),
   generatedAt: v.string(),
-  verdict: v.picklist(['EASY', 'MEDIUM', 'HARD']),
+  verdict: v.picklist(["EASY", "MEDIUM", "HARD"]),
   arriveBy: v.nullable(v.string()),
   detail: v.string(),
-})
-export type Forecast = v.InferOutput<typeof Forecast>
+});
+export type Forecast = v.InferOutput<typeof Forecast>;
 
 // zones.geojson is served as a FeatureCollection; each feature's properties:
 export interface ZoneProperties extends ZoneRegime {
-  name?: string
+  name?: string;
 }
