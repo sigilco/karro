@@ -1,5 +1,5 @@
-import { DestinationScreen } from '~/components/flows/DestinationScreen'
+import { DestinationScreen } from "~/components/flows/DestinationScreen";
 
 export default function DestPage() {
-  return <DestinationScreen />
+  return <DestinationScreen />;
 }

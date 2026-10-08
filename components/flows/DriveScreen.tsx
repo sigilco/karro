@@ -1,78 +1,68 @@
-import { useState } from 'react'
-import { useQueries, useQuery } from '@tanstack/react-query'
-import { useRouter } from 'one'
-import type { Facility } from '~/packages/contract/src/index'
-import { api } from '~/packages/contract/src/client'
-import { Badge, Button, Card, Sheet, useWatchPosition } from '~/packages/ui'
-import { FacilityMap } from '~/components/map/FacilityMap'
-import { nearestFacilities, projectedAtMin } from './geo'
-import { toneForVerdict, verdictForProjected } from './verdict'
-import {
-  announceDelta,
-  resetDeltaSignature,
-  setVoiceEnabled,
-  speakNow,
-  voiceEnabled,
-} from './tts'
+import { useState } from "react";
+import { useQueries, useQuery } from "@tanstack/react-query";
+import { useRouter } from "one";
+import type { Facility } from "~/packages/contract/src/index";
+import { api } from "~/packages/contract/src/client";
+import { Badge, Button, Card, Sheet, useWatchPosition } from "~/packages/ui";
+import { FacilityMap } from "~/components/map/FacilityMap";
+import { nearestFacilities, projectedAtMin } from "./geo";
+import { toneForVerdict, verdictForProjected } from "./verdict";
+import { announceDelta, resetDeltaSignature, setVoiceEnabled, speakNow, voiceEnabled } from "./tts";
 
-const STALE_AFTER_S = 300
+const STALE_AFTER_S = 300;
 // ~500m grid — ETA doesn't refetch on every GPS tick, only on real movement.
-const ETA_GRID_DEG = 0.005
+const ETA_GRID_DEG = 0.005;
 
 export function DriveScreen(props: {
-  targetId: string | undefined
-  destLat: number | undefined
-  destLon: number | undefined
+  targetId: string | undefined;
+  destLat: number | undefined;
+  destLon: number | undefined;
 }) {
-  const router = useRouter()
-  const geo = useWatchPosition()
-  const [voice, setVoice] = useState(voiceEnabled())
+  const router = useRouter();
+  const geo = useWatchPosition();
+  const [voice, setVoice] = useState(voiceEnabled());
 
   const facilitiesQ = useQuery({
-    queryKey: ['facilities'],
+    queryKey: ["facilities"],
     queryFn: api.facilities,
     refetchInterval: 30_000,
     staleTime: 15_000,
     retry: 1,
-  })
+  });
   const zonesQ = useQuery({
-    queryKey: ['zones'],
+    queryKey: ["zones"],
     queryFn: api.zonesGeoJson,
     staleTime: Number.POSITIVE_INFINITY,
     retry: false,
-  })
+  });
 
-  const facilities = facilitiesQ.data?.facilities ?? []
-  const target = facilities.find((f) => f.id === props.targetId)
+  const facilities = facilitiesQ.data?.facilities ?? [];
+  const target = facilities.find((f) => f.id === props.targetId);
 
   const origin =
     geo.position ??
     (props.destLat !== undefined && props.destLon !== undefined
       ? { lat: props.destLat, lon: props.destLon }
-      : undefined)
+      : undefined);
   const qOrigin = origin
     ? {
         lat: Math.round(origin.lat / ETA_GRID_DEG) * ETA_GRID_DEG,
         lon: Math.round(origin.lon / ETA_GRID_DEG) * ETA_GRID_DEG,
       }
-    : undefined
+    : undefined;
 
   const etaQ = useQuery({
-    queryKey: ['eta', qOrigin?.lat, qOrigin?.lon, target?.lat, target?.lon],
-    queryFn: () =>
-      api.eta(qOrigin!.lat, qOrigin!.lon, target!.lat, target!.lon),
+    queryKey: ["eta", qOrigin?.lat, qOrigin?.lon, target?.lat, target?.lon],
+    queryFn: () => api.eta(qOrigin!.lat, qOrigin!.lon, target!.lat, target!.lon),
     enabled: qOrigin !== undefined && target !== undefined,
     refetchInterval: 30_000,
     retry: 1,
-  })
+  });
 
-  const driveMin = etaQ.data?.driveMin
-  const atEta =
-    target && driveMin !== undefined
-      ? projectedAtMin(target, driveMin)
-      : undefined
-  const verdict = atEta !== undefined ? verdictForProjected(atEta) : undefined
-  const stale = target !== undefined && target.dataAgeS > STALE_AFTER_S
+  const driveMin = etaQ.data?.driveMin;
+  const atEta = target && driveMin !== undefined ? projectedAtMin(target, driveMin) : undefined;
+  const verdict = atEta !== undefined ? verdictForProjected(atEta) : undefined;
+  const stale = target !== undefined && target.dataAgeS > STALE_AFTER_S;
 
   // Next-best alternative: 5 nearest candidates, each projected at its own ETA.
   const candidates = origin
@@ -80,64 +70,63 @@ export function DriveScreen(props: {
         facilities.filter((f) => f.id !== target?.id),
         origin.lat,
         origin.lon,
-        5
+        5,
       )
-    : []
+    : [];
   const candidateEtas = useQueries({
     queries: candidates.map((f) => ({
-      queryKey: ['eta', qOrigin?.lat, qOrigin?.lon, f.lat, f.lon],
-      queryFn: () =>
-        api.eta(qOrigin!.lat, qOrigin!.lon, f.lat, f.lon),
+      queryKey: ["eta", qOrigin?.lat, qOrigin?.lon, f.lat, f.lon],
+      queryFn: () => api.eta(qOrigin!.lat, qOrigin!.lon, f.lat, f.lon),
       enabled: qOrigin !== undefined,
       staleTime: 60_000,
       retry: 1,
     })),
-  })
+  });
 
-  let best: { facility: Facility; atEta: number } | undefined
+  let best: { facility: Facility; atEta: number } | undefined;
   candidates.forEach((f, i) => {
-    const dm = candidateEtas[i]?.data?.driveMin
-    if (dm === undefined) return
-    const at = projectedAtMin(f, dm)
-    if (!best || at > best.atEta) best = { facility: f, atEta: at }
-  })
+    const dm = candidateEtas[i]?.data?.driveMin;
+    if (dm === undefined) return;
+    const at = projectedAtMin(f, dm);
+    if (!best || at > best.atEta) best = { facility: f, atEta: at };
+  });
 
   // Voice deltas only — the signature changes on target/verdict/number change.
   if (!stale && target && verdict !== undefined && atEta !== undefined) {
     announceDelta(
       `${target.id}:${verdict}:${atEta}`,
-      `${target.name}: about ${atEta} spaces at arrival — ${verdict}`
-    )
+      `${target.name}: about ${atEta} spaces at arrival — ${verdict}`,
+    );
   }
 
   function retarget(f: Facility) {
-    router.replace(`/drive?to=${f.id}&lat=${f.lat}&lon=${f.lon}`)
+    router.replace(`/drive?to=${f.id}&lat=${f.lat}&lon=${f.lon}`);
   }
 
   function handleSwitch() {
-    if (!best) return
-    resetDeltaSignature() // force the new target's situation to be announced
+    if (!best) return;
+    resetDeltaSignature(); // force the new target's situation to be announced
     if (voiceEnabled()) {
-      speakNow(`Switching to ${best.facility.name}: about ${best.atEta} spaces`)
+      speakNow(`Switching to ${best.facility.name}: about ${best.atEta} spaces`);
     }
-    retarget(best.facility)
+    retarget(best.facility);
   }
 
   function handleVoiceToggle() {
-    const next = !voice
-    setVoiceEnabled(next)
-    setVoice(next)
-    if (next) speakNow('Voice on')
+    const next = !voice;
+    setVoiceEnabled(next);
+    setVoice(next);
+    if (next) speakNow("Voice on");
   }
 
   function handleEndDrive() {
-    const params = new URLSearchParams()
+    const params = new URLSearchParams();
     if (target) {
-      params.set('lat', String(target.lat))
-      params.set('lon', String(target.lon))
-      params.set('name', target.name)
+      params.set("lat", String(target.lat));
+      params.set("lon", String(target.lon));
+      params.set("name", target.name);
     }
-    router.push(`/parked?${params.toString()}`)
+    router.push(`/parked?${params.toString()}`);
   }
 
   if (!target) {
@@ -149,14 +138,12 @@ export function DriveScreen(props: {
           ) : (
             <>
               <p className="mb-4 text-ink">No drive target set.</p>
-              <Button onClick={() => router.push('/dest')}>
-                Pick a destination
-              </Button>
+              <Button onClick={() => router.push("/dest")}>Pick a destination</Button>
             </>
           )}
         </Card>
       </div>
-    )
+    );
   }
 
   return (
@@ -168,15 +155,15 @@ export function DriveScreen(props: {
         targetId={target.id}
         follow={geo.position ? { lat: geo.position.lat, lon: geo.position.lon } : undefined}
         onSelect={(id) => {
-          const f = facilities.find((x) => x.id === id)
-          if (f) retarget(f)
+          const f = facilities.find((x) => x.id === id);
+          if (f) retarget(f);
         }}
       />
 
       {/* glance card — one number, one color, ≤8 words */}
       <div
         className="absolute inset-x-0 top-0 z-10 px-3"
-        style={{ paddingTop: 'calc(0.75rem + env(safe-area-inset-top))' }}
+        style={{ paddingTop: "calc(0.75rem + env(safe-area-inset-top))" }}
       >
         <Card className="bg-surface-2/95 backdrop-blur">
           {stale ? (
@@ -186,34 +173,26 @@ export function DriveScreen(props: {
           ) : (
             <div className="flex items-center gap-4">
               <div className="min-w-0 flex-1">
-                <p className="truncate text-base font-semibold text-ink">
-                  {target.name}
-                </p>
+                <p className="truncate text-base font-semibold text-ink">{target.name}</p>
                 <p className="text-sm text-ink-dim">
-                  {driveMin !== undefined
-                    ? `${Math.round(driveMin)} min`
-                    : '… min'}
-                  {target.available !== null
-                    ? ` · ${target.available} now`
-                    : ''}
+                  {driveMin !== undefined ? `${Math.round(driveMin)} min` : "… min"}
+                  {target.available !== null ? ` · ${target.available} now` : ""}
                 </p>
               </div>
               <p
                 className={`text-5xl font-black tabular-nums ${
-                  verdict === 'EASY'
-                    ? 'text-easy'
-                    : verdict === 'MEDIUM'
-                      ? 'text-medium'
-                      : verdict === 'HARD'
-                        ? 'text-hard'
-                        : 'text-ink-dim'
+                  verdict === "EASY"
+                    ? "text-easy"
+                    : verdict === "MEDIUM"
+                      ? "text-medium"
+                      : verdict === "HARD"
+                        ? "text-hard"
+                        : "text-ink-dim"
                 }`}
               >
-                {atEta !== undefined ? `~${atEta}` : '—'}
+                {atEta !== undefined ? `~${atEta}` : "—"}
               </p>
-              {verdict ? (
-                <Badge tone={toneForVerdict(verdict)}>{verdict}</Badge>
-              ) : null}
+              {verdict ? <Badge tone={toneForVerdict(verdict)}>{verdict}</Badge> : null}
             </div>
           )}
         </Card>
@@ -234,7 +213,7 @@ export function DriveScreen(props: {
             End drive
           </Button>
           <Button variant="ghost" onClick={handleVoiceToggle}>
-            {voice ? 'Voice on' : 'Voice off'}
+            {voice ? "Voice on" : "Voice off"}
           </Button>
         </div>
         {geo.error ? (
@@ -244,5 +223,5 @@ export function DriveScreen(props: {
         ) : null}
       </Sheet>
     </div>
-  )
+  );
 }

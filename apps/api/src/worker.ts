@@ -6,68 +6,62 @@
 
 /// <reference types="@cloudflare/workers-types" />
 
-import {
-  createApiApp,
-  createFeedState,
-  pollOnce,
-  restoreState,
-  serializeState,
-} from './core'
-import type { FeedState as ApiState } from './core'
+import { createApiApp, createFeedState, pollOnce, restoreState, serializeState } from "./core";
+import type { FeedState as ApiState } from "./core";
 
 interface Env {
-  FEED: DurableObjectNamespace
+  FEED: DurableObjectNamespace;
 }
 
-const SINGLETON = 'malaga'
+const SINGLETON = "malaga";
 
 export class FeedDO implements DurableObject {
-  private state: ApiState = createFeedState()
-  private app: ReturnType<typeof createApiApp>
+  private state: ApiState = createFeedState();
+  private app: ReturnType<typeof createApiApp>;
 
   constructor(
     private ctx: DurableObjectState,
     _env: Env,
   ) {
-    this.app = createApiApp(this.state)
+    this.app = createApiApp(this.state);
     ctx.blockConcurrencyWhile(async () => {
-      const stored = await ctx.storage.get<string>('feedState')
-      if (!stored) return
+      const stored = await ctx.storage.get<string>("feedState");
+      if (!stored) return;
       // Restore into the SAME object the app captured.
-      const r = restoreState(stored)
-      this.state.startMs = r.startMs
-      this.state.ring = r.ring
-      this.state.lastGoodPollMs = r.lastGoodPollMs
-      this.state.lastPollSnapshot = r.lastPollSnapshot
-      this.state.observedMax = r.observedMax
-      this.state.perIdLastSeen = r.perIdLastSeen
-      this.state.observationsTotal = r.observationsTotal
-    })
+      const r = restoreState(stored);
+      this.state.startMs = r.startMs;
+      this.state.ring = r.ring;
+      this.state.lastGoodPollMs = r.lastGoodPollMs;
+      this.state.lastPollSnapshot = r.lastPollSnapshot;
+      this.state.observedMax = r.observedMax;
+      this.state.perIdLastSeen = r.perIdLastSeen;
+      this.state.observationsTotal = r.observationsTotal;
+    });
   }
 
   async fetch(request: Request): Promise<Response> {
-    const url = new URL(request.url)
-    if (url.pathname === '/v1/internal/poll') {
+    const url = new URL(request.url);
+    if (url.pathname === "/v1/internal/poll") {
       try {
-        await pollOnce(this.state)
-        this.ctx.storage.put('feedState', serializeState(this.state))
-        return Response.json({ ok: true })
+        await pollOnce(this.state);
+        this.ctx.storage.put("feedState", serializeState(this.state));
+        return Response.json({ ok: true });
       } catch (err) {
-        return Response.json({ ok: false, error: String(err) }, { status: 502 })
+        return Response.json({ ok: false, error: String(err) }, { status: 502 });
       }
     }
-    return this.app.fetch(request)
+    return this.app.fetch(request);
   }
 }
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
-    const stub = env.FEED.get(env.FEED.idFromName(SINGLETON))
-    return stub.fetch(request)
+    const stub = env.FEED.get(env.FEED.idFromName(SINGLETON));
+    return stub.fetch(request);
   },
 
   async scheduled(_event: ScheduledController, env: Env, ctx: ExecutionContext): Promise<void> {
-    const stub = env.FEED.get(env.FEED.idFromName(SINGLETON))
-    ctx.waitUntil(stub.fetch('https://do.internal/v1/internal/poll'))
+    const stub = env.FEED.get(env.FEED.idFromName(SINGLETON));
+    ctx.waitUntil(stub.fetch("https://do.internal/v1/internal/poll"));
   },
-} satisfies ExportedHandler<Env>
+} satisfies ExportedHandler<Env>;

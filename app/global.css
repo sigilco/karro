@@ -1,4 +1,4 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 
 @theme {
   --color-surface: #0b0f0c;
@@ -9,10 +9,10 @@
   --color-medium: #f5b83d;
   --color-hard: #ef5a4f;
   --color-accent: #4fc3ff;
-  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-sans: "Inter", system-ui, sans-serif;
 }
 
-:root[data-theme='light'] {
+:root[data-theme="light"] {
   --color-surface: #eef3ee;
   --color-surface-2: #ffffff;
   --color-ink: #16241c;

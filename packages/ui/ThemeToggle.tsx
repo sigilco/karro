@@ -1,9 +1,9 @@
-import { toggleTheme, useTheme } from './theme'
+import { toggleTheme, useTheme } from "./theme";
 
 const cls =
-  'pointer-events-auto flex h-10 w-10 items-center justify-center rounded-full ' +
-  'border border-ink/10 bg-surface-2/90 text-ink shadow-lg backdrop-blur ' +
-  'transition-colors active:scale-95 select-none cursor-pointer'
+  "pointer-events-auto flex h-10 w-10 items-center justify-center rounded-full " +
+  "border border-ink/10 bg-surface-2/90 text-ink shadow-lg backdrop-blur " +
+  "transition-colors active:scale-95 select-none cursor-pointer";
 
 function SunIcon() {
   return (
@@ -16,7 +16,7 @@ function SunIcon() {
         strokeLinecap="round"
       />
     </svg>
-  )
+  );
 }
 
 function MoonIcon() {
@@ -29,20 +29,20 @@ function MoonIcon() {
         strokeLinejoin="round"
       />
     </svg>
-  )
+  );
 }
 
 export function ThemeToggle() {
-  const theme = useTheme()
+  const theme = useTheme();
   return (
     <button
       type="button"
       onClick={toggleTheme}
-      aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
-      title={theme === 'dark' ? 'Light theme' : 'Dark theme'}
+      aria-label={theme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
+      title={theme === "dark" ? "Light theme" : "Dark theme"}
       className={cls}
     >
-      {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
+      {theme === "dark" ? <SunIcon /> : <MoonIcon />}
     </button>
-  )
+  );
 }
