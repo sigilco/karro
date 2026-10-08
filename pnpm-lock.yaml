@@ -28,7 +28,7 @@ importers:
         version: 5.24.0
       one:
         specifier: 1.27.1
-        version: 1.27.1(61048cc376b15264478896b5cc34befd)
+        version: 1.27.1(3d8caa1a28fe494f7c251d53b1cd5046)
       react:
         specifier: 19.2.3
         version: 19.2.3
@@ -42,8 +42,8 @@ importers:
         specifier: ~4.6.0
         version: 4.6.0(react-native-worklets@0.12.2(@babel/core@7.29.7(supports-color@10.2.2))(@react-native/metro-config@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(supports-color@10.2.2))(react-native@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(@react-native-community/cli@20.2.0(supports-color@10.2.2)(typescript@7.0.2))(@react-native/metro-config@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(supports-color@10.2.2))(@types/react@19.3.0)(react@19.2.3)(supports-color@10.2.2))(react@19.2.3)(supports-color@10.2.2))(react-native@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(@react-native-community/cli@20.2.0(supports-color@10.2.2)(typescript@7.0.2))(@react-native/metro-config@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(supports-color@10.2.2))(@types/react@19.3.0)(react@19.2.3)(supports-color@10.2.2))(react@19.2.3)
       react-native-safe-area-context:
-        specifier: ~5.7.0
-        version: 5.7.0(react-native@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(@react-native-community/cli@20.2.0(supports-color@10.2.2)(typescript@7.0.2))(@react-native/metro-config@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(supports-color@10.2.2))(@types/react@19.3.0)(react@19.2.3)(supports-color@10.2.2))(react@19.2.3)
+        specifier: ~5.9.1
+        version: 5.9.1(react-native@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(@react-native-community/cli@20.2.0(supports-color@10.2.2)(typescript@7.0.2))(@react-native/metro-config@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(supports-color@10.2.2))(@types/react@19.3.0)(react@19.2.3)(supports-color@10.2.2))(react@19.2.3)
       react-native-screens:
         specifier: ~4.27.0
         version: 4.27.0(react-native@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(@react-native-community/cli@20.2.0(supports-color@10.2.2)(typescript@7.0.2))(@react-native/metro-config@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(supports-color@10.2.2))(@types/react@19.3.0)(react@19.2.3)(supports-color@10.2.2))(react@19.2.3)
@@ -5005,8 +5005,8 @@ packages:
       react-native: 0.83 - 0.87
       react-native-worklets: 0.12.x
 
-  react-native-safe-area-context@5.7.0:
-    resolution: {integrity: sha512-/9/MtQz8ODphjsLdZ+GZAIcC/RtoqW9EeShf7Uvnfgm/pzYrJ75y3PV/J1wuAV1T5Dye5ygq4EAW20RoBq0ABQ==}
+  react-native-safe-area-context@5.9.1:
+    resolution: {integrity: sha512-Zpx9Iwg6VhgNarWFpcIM61xK2lUbSfSXemQUmcvOVRpux49lJsUompY1S3E5jKUJbLq233qEpj28DgmXVsgZMQ==}
     peerDependencies:
       react: '*'
       react-native: '*'
@@ -7880,14 +7880,14 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.3.0
 
-  '@react-navigation/bottom-tabs@7.18.18(9326ffa904c84bda2e9384e150a4d2fd)':
+  '@react-navigation/bottom-tabs@7.18.18(c944883a0c1561a01f6ecfe6099f3281)':
     dependencies:
-      '@react-navigation/elements': 2.9.44(5e62a9fe00d2799fe6c2fcbd05d6e05f)
+      '@react-navigation/elements': 2.9.44(01069cb21ae3d85c1fbca17205af03e7)
       '@react-navigation/native': 7.3.18(react-native@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(@react-native-community/cli@20.2.0(supports-color@10.2.2)(typescript@7.0.2))(@react-native/metro-config@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(supports-color@10.2.2))(@types/react@19.3.0)(react@19.2.3)(supports-color@10.2.2))(react@19.2.3)
       color: 4.2.3
       react: 19.2.3
       react-native: 0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(@react-native-community/cli@20.2.0(supports-color@10.2.2)(typescript@7.0.2))(@react-native/metro-config@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(supports-color@10.2.2))(@types/react@19.3.0)(react@19.2.3)(supports-color@10.2.2)
-      react-native-safe-area-context: 5.7.0(react-native@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(@react-native-community/cli@20.2.0(supports-color@10.2.2)(typescript@7.0.2))(@react-native/metro-config@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(supports-color@10.2.2))(@types/react@19.3.0)(react@19.2.3)(supports-color@10.2.2))(react@19.2.3)
+      react-native-safe-area-context: 5.9.1(react-native@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(@react-native-community/cli@20.2.0(supports-color@10.2.2)(typescript@7.0.2))(@react-native/metro-config@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(supports-color@10.2.2))(@types/react@19.3.0)(react@19.2.3)(supports-color@10.2.2))(react@19.2.3)
       react-native-screens: 4.27.0(react-native@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(@react-native-community/cli@20.2.0(supports-color@10.2.2)(typescript@7.0.2))(@react-native/metro-config@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(supports-color@10.2.2))(@types/react@19.3.0)(react@19.2.3)(supports-color@10.2.2))(react@19.2.3)
       sf-symbols-typescript: 2.2.0
     transitivePeerDependencies:
@@ -7903,26 +7903,26 @@ snapshots:
       use-latest-callback: 0.2.6(react@19.2.3)
       use-sync-external-store: 1.7.0(react@19.2.3)
 
-  '@react-navigation/elements@2.9.44(5e62a9fe00d2799fe6c2fcbd05d6e05f)':
+  '@react-navigation/elements@2.9.44(01069cb21ae3d85c1fbca17205af03e7)':
     dependencies:
       '@react-navigation/native': 7.3.18(react-native@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(@react-native-community/cli@20.2.0(supports-color@10.2.2)(typescript@7.0.2))(@react-native/metro-config@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(supports-color@10.2.2))(@types/react@19.3.0)(react@19.2.3)(supports-color@10.2.2))(react@19.2.3)
       color: 4.2.3
       react: 19.2.3
       react-native: 0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(@react-native-community/cli@20.2.0(supports-color@10.2.2)(typescript@7.0.2))(@react-native/metro-config@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(supports-color@10.2.2))(@types/react@19.3.0)(react@19.2.3)(supports-color@10.2.2)
-      react-native-safe-area-context: 5.7.0(react-native@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(@react-native-community/cli@20.2.0(supports-color@10.2.2)(typescript@7.0.2))(@react-native/metro-config@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(supports-color@10.2.2))(@types/react@19.3.0)(react@19.2.3)(supports-color@10.2.2))(react@19.2.3)
+      react-native-safe-area-context: 5.9.1(react-native@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(@react-native-community/cli@20.2.0(supports-color@10.2.2)(typescript@7.0.2))(@react-native/metro-config@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(supports-color@10.2.2))(@types/react@19.3.0)(react@19.2.3)(supports-color@10.2.2))(react@19.2.3)
       use-latest-callback: 0.2.6(react@19.2.3)
       use-sync-external-store: 1.7.0(react@19.2.3)
     optionalDependencies:
       '@react-native-masked-view/masked-view': 0.3.2(react-native@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(@react-native-community/cli@20.2.0(supports-color@10.2.2)(typescript@7.0.2))(@react-native/metro-config@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(supports-color@10.2.2))(@types/react@19.3.0)(react@19.2.3)(supports-color@10.2.2))(react@19.2.3)
 
-  '@react-navigation/native-stack@7.18.10(9326ffa904c84bda2e9384e150a4d2fd)':
+  '@react-navigation/native-stack@7.18.10(c944883a0c1561a01f6ecfe6099f3281)':
     dependencies:
-      '@react-navigation/elements': 2.9.44(5e62a9fe00d2799fe6c2fcbd05d6e05f)
+      '@react-navigation/elements': 2.9.44(01069cb21ae3d85c1fbca17205af03e7)
       '@react-navigation/native': 7.3.18(react-native@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(@react-native-community/cli@20.2.0(supports-color@10.2.2)(typescript@7.0.2))(@react-native/metro-config@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(supports-color@10.2.2))(@types/react@19.3.0)(react@19.2.3)(supports-color@10.2.2))(react@19.2.3)
       color: 4.2.3
       react: 19.2.3
       react-native: 0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(@react-native-community/cli@20.2.0(supports-color@10.2.2)(typescript@7.0.2))(@react-native/metro-config@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(supports-color@10.2.2))(@types/react@19.3.0)(react@19.2.3)(supports-color@10.2.2)
-      react-native-safe-area-context: 5.7.0(react-native@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(@react-native-community/cli@20.2.0(supports-color@10.2.2)(typescript@7.0.2))(@react-native/metro-config@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(supports-color@10.2.2))(@types/react@19.3.0)(react@19.2.3)(supports-color@10.2.2))(react@19.2.3)
+      react-native-safe-area-context: 5.9.1(react-native@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(@react-native-community/cli@20.2.0(supports-color@10.2.2)(typescript@7.0.2))(@react-native/metro-config@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(supports-color@10.2.2))(@types/react@19.3.0)(react@19.2.3)(supports-color@10.2.2))(react@19.2.3)
       react-native-screens: 4.27.0(react-native@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(@react-native-community/cli@20.2.0(supports-color@10.2.2)(typescript@7.0.2))(@react-native/metro-config@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(supports-color@10.2.2))(@types/react@19.3.0)(react@19.2.3)(supports-color@10.2.2))(react@19.2.3)
       sf-symbols-typescript: 2.2.0
       warn-once: 0.1.1
@@ -8216,7 +8216,7 @@ snapshots:
       react: 19.2.3
       react-native: 0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(@react-native-community/cli@20.2.0(supports-color@10.2.2)(typescript@7.0.2))(@react-native/metro-config@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(supports-color@10.2.2))(@types/react@19.3.0)(react@19.2.3)(supports-color@10.2.2)
 
-  '@vxrn/compiler@1.27.1(20a9b512865cc78e845eeb0c8888a044)':
+  '@vxrn/compiler@1.27.1(00f78c681ebd698833f0d93a870fb1e0)':
     dependencies:
       '@babel/core': 7.29.7(supports-color@10.2.2)
       '@babel/plugin-transform-destructuring': 7.29.7(@babel/core@7.29.7(supports-color@10.2.2))(supports-color@10.2.2)
@@ -8234,7 +8234,7 @@ snapshots:
       oxc-parser: 0.112.0(@emnapi/core@1.11.3)(@emnapi/runtime@1.11.3)
       oxc-transform: 0.148.0
       oxc-transform-react: 0.145.0
-      react-native-css-interop: 0.2.7(4b92c0d1b63e29fa657ae943024b1174)
+      react-native-css-interop: 0.2.7(47b8637211162f194a41eec31b6588c4)
     optionalDependencies:
       vite: 8.3.3(@types/node@26.6.4)(esbuild@0.28.1)(jiti@1.21.7)(terser@5.51.2)(yaml@2.9.1)
     transitivePeerDependencies:
@@ -8311,7 +8311,7 @@ snapshots:
     dependencies:
       react-native: 0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(@react-native-community/cli@20.2.0(supports-color@10.2.2)(typescript@7.0.2))(@react-native/metro-config@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(supports-color@10.2.2))(@types/react@19.3.0)(react@19.2.3)(supports-color@10.2.2)
 
-  '@vxrn/vite-plugin-metro@1.27.1(699d0e518e54ddcace59a52b58041278)':
+  '@vxrn/vite-plugin-metro@1.27.1(37988766c33c069e4f8fa6c3f087c857)':
     dependencies:
       '@babel/core': 7.29.7(supports-color@10.2.2)
       '@babel/helper-plugin-utils': 7.29.7
@@ -8319,7 +8319,7 @@ snapshots:
       '@jridgewell/remapping': 2.3.5
       '@jridgewell/trace-mapping': 0.3.31
       '@oxc-project/runtime': 0.112.0
-      '@vxrn/compiler': 1.27.1(20a9b512865cc78e845eeb0c8888a044)
+      '@vxrn/compiler': 1.27.1(00f78c681ebd698833f0d93a870fb1e0)
       '@vxrn/debug': 1.27.1(supports-color@10.2.2)
       '@vxrn/utils': 1.27.1(supports-color@10.2.2)
       babel-preset-expo: 57.0.14(@babel/core@7.29.7(supports-color@10.2.2))(@babel/runtime@7.29.7)(expo@58.0.0-canary-20260909-ea7a89a(552274036ec9d3b6f20d425c2d22864b))(react-refresh@0.14.2)(supports-color@10.2.2)
@@ -10604,7 +10604,7 @@ snapshots:
 
   on-headers@1.1.0: {}
 
-  one@1.27.1(61048cc376b15264478896b5cc34befd):
+  one@1.27.1(3d8caa1a28fe494f7c251d53b1cd5046):
     dependencies:
       '@azure/core-asynciterator-polyfill': 1.0.2
       '@babel/core': 7.29.7(supports-color@10.2.2)
@@ -10616,17 +10616,17 @@ snapshots:
       '@cloudflare/vite-plugin': 1.63.0(@types/node@26.6.4)(vite@8.3.3(@types/node@26.6.4)(esbuild@0.28.1)(jiti@1.21.7)(terser@5.51.2)(yaml@2.9.1))(wrangler@4.148.0(@cloudflare/workers-types@5.20261007.1)(@types/node@26.6.4))
       '@radix-ui/react-slot': 1.4.0(@types/react@19.3.0)(react@19.2.3)
       '@react-native-masked-view/masked-view': 0.3.2(react-native@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(@react-native-community/cli@20.2.0(supports-color@10.2.2)(typescript@7.0.2))(@react-native/metro-config@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(supports-color@10.2.2))(@types/react@19.3.0)(react@19.2.3)(supports-color@10.2.2))(react@19.2.3)
-      '@react-navigation/bottom-tabs': 7.18.18(9326ffa904c84bda2e9384e150a4d2fd)
+      '@react-navigation/bottom-tabs': 7.18.18(c944883a0c1561a01f6ecfe6099f3281)
       '@react-navigation/native': 7.3.18(react-native@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(@react-native-community/cli@20.2.0(supports-color@10.2.2)(typescript@7.0.2))(@react-native/metro-config@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(supports-color@10.2.2))(@types/react@19.3.0)(react@19.2.3)(supports-color@10.2.2))(react@19.2.3)
-      '@react-navigation/native-stack': 7.18.10(9326ffa904c84bda2e9384e150a4d2fd)
+      '@react-navigation/native-stack': 7.18.10(c944883a0c1561a01f6ecfe6099f3281)
       '@react-navigation/routers': 7.6.4
       '@ungap/structured-clone': 1.4.0
       '@vxrn/color-scheme': 1.27.1(react-native@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(@react-native-community/cli@20.2.0(supports-color@10.2.2)(typescript@7.0.2))(@react-native/metro-config@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(supports-color@10.2.2))(@types/react@19.3.0)(react@19.2.3)(supports-color@10.2.2))(react@19.2.3)
-      '@vxrn/compiler': 1.27.1(20a9b512865cc78e845eeb0c8888a044)
+      '@vxrn/compiler': 1.27.1(00f78c681ebd698833f0d93a870fb1e0)
       '@vxrn/resolve': 1.27.1
       '@vxrn/tslib-lite': 1.27.1
       '@vxrn/use-isomorphic-layout-effect': 1.27.1(react@19.2.3)
-      '@vxrn/vite-plugin-metro': 1.27.1(699d0e518e54ddcace59a52b58041278)
+      '@vxrn/vite-plugin-metro': 1.27.1(37988766c33c069e4f8fa6c3f087c857)
       babel-dead-code-elimination: 1.0.10(supports-color@10.2.2)
       babel-plugin-module-resolver: 5.0.3
       babel-preset-expo: 57.0.14(@babel/core@7.29.7(supports-color@10.2.2))(@babel/runtime@7.29.7)(expo@58.0.0-canary-20260909-ea7a89a(552274036ec9d3b6f20d425c2d22864b))(react-refresh@0.14.2)(supports-color@10.2.2)
@@ -10650,14 +10650,14 @@ snapshots:
       react: 19.2.3
       react-compiler-runtime: 19.0.0-beta-ebf51a3-20250411(react@19.2.3)
       react-dom: 19.2.3(react@19.2.3)
-      react-native-css-interop: 0.2.7(4b92c0d1b63e29fa657ae943024b1174)
-      react-native-safe-area-context: 5.7.0(react-native@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(@react-native-community/cli@20.2.0(supports-color@10.2.2)(typescript@7.0.2))(@react-native/metro-config@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(supports-color@10.2.2))(@types/react@19.3.0)(react@19.2.3)(supports-color@10.2.2))(react@19.2.3)
+      react-native-css-interop: 0.2.7(47b8637211162f194a41eec31b6588c4)
+      react-native-safe-area-context: 5.9.1(react-native@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(@react-native-community/cli@20.2.0(supports-color@10.2.2)(typescript@7.0.2))(@react-native/metro-config@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(supports-color@10.2.2))(@types/react@19.3.0)(react@19.2.3)(supports-color@10.2.2))(react@19.2.3)
       react-native-screens: 4.27.0(react-native@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(@react-native-community/cli@20.2.0(supports-color@10.2.2)(typescript@7.0.2))(@react-native/metro-config@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(supports-color@10.2.2))(@types/react@19.3.0)(react@19.2.3)(supports-color@10.2.2))(react@19.2.3)
       ts-pattern: 5.9.0
       tsconfig-paths: 4.2.0
       use-latest-callback: 0.2.6(react@19.2.3)
       vite: 8.3.3(@types/node@26.6.4)(esbuild@0.28.1)(jiti@1.21.7)(terser@5.51.2)(yaml@2.9.1)
-      vxrn: 1.27.1(3df337ffcd0f26d22efe59f0a0b9f116)
+      vxrn: 1.27.1(a703460be5e1c7f00ed77dcd3073156d)
       web-streams-polyfill: 4.3.0
       ws: 8.22.0
       xxhashjs: 0.2.2
@@ -11060,7 +11060,7 @@ snapshots:
 
   react-is@19.3.0: {}
 
-  react-native-css-interop@0.2.7(4b92c0d1b63e29fa657ae943024b1174):
+  react-native-css-interop@0.2.7(47b8637211162f194a41eec31b6588c4):
     dependencies:
       '@babel/helper-module-imports': 7.29.7(supports-color@10.2.2)
       '@babel/traverse': 7.29.8(supports-color@10.2.2)
@@ -11073,7 +11073,7 @@ snapshots:
       semver: 7.8.5
       tailwindcss: 4.3.3
     optionalDependencies:
-      react-native-safe-area-context: 5.7.0(react-native@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(@react-native-community/cli@20.2.0(supports-color@10.2.2)(typescript@7.0.2))(@react-native/metro-config@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(supports-color@10.2.2))(@types/react@19.3.0)(react@19.2.3)(supports-color@10.2.2))(react@19.2.3)
+      react-native-safe-area-context: 5.9.1(react-native@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(@react-native-community/cli@20.2.0(supports-color@10.2.2)(typescript@7.0.2))(@react-native/metro-config@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(supports-color@10.2.2))(@types/react@19.3.0)(react@19.2.3)(supports-color@10.2.2))(react@19.2.3)
     transitivePeerDependencies:
       - supports-color
 
@@ -11090,7 +11090,7 @@ snapshots:
       react-native-worklets: 0.12.2(@babel/core@7.29.7(supports-color@10.2.2))(@react-native/metro-config@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(supports-color@10.2.2))(react-native@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(@react-native-community/cli@20.2.0(supports-color@10.2.2)(typescript@7.0.2))(@react-native/metro-config@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(supports-color@10.2.2))(@types/react@19.3.0)(react@19.2.3)(supports-color@10.2.2))(react@19.2.3)(supports-color@10.2.2)
       semver: 7.8.5
 
-  react-native-safe-area-context@5.7.0(react-native@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(@react-native-community/cli@20.2.0(supports-color@10.2.2)(typescript@7.0.2))(@react-native/metro-config@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(supports-color@10.2.2))(@types/react@19.3.0)(react@19.2.3)(supports-color@10.2.2))(react@19.2.3):
+  react-native-safe-area-context@5.9.1(react-native@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(@react-native-community/cli@20.2.0(supports-color@10.2.2)(typescript@7.0.2))(@react-native/metro-config@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(supports-color@10.2.2))(@types/react@19.3.0)(react@19.2.3)(supports-color@10.2.2))(react@19.2.3):
     dependencies:
       react: 19.2.3
       react-native: 0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(@react-native-community/cli@20.2.0(supports-color@10.2.2)(typescript@7.0.2))(@react-native/metro-config@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(supports-color@10.2.2))(@types/react@19.3.0)(react@19.2.3)(supports-color@10.2.2)
@@ -11695,7 +11695,7 @@ snapshots:
 
   vlq@1.0.1: {}
 
-  vxrn@1.27.1(3df337ffcd0f26d22efe59f0a0b9f116):
+  vxrn@1.27.1(a703460be5e1c7f00ed77dcd3073156d):
     dependencies:
       '@expo/config-plugins': 57.0.10(supports-color@10.2.2)(typescript@7.0.2)
       '@hono/node-server': 1.19.17(hono@4.13.13)
@@ -11703,7 +11703,7 @@ snapshots:
       '@jridgewell/trace-mapping': 0.3.31
       '@react-native/codegen': 0.86.3(@babel/core@7.29.7(supports-color@10.2.2))
       '@react-native/dev-middleware': 0.86.3(supports-color@10.2.2)
-      '@vxrn/compiler': 1.27.1(20a9b512865cc78e845eeb0c8888a044)
+      '@vxrn/compiler': 1.27.1(00f78c681ebd698833f0d93a870fb1e0)
       '@vxrn/debug': 1.27.1(supports-color@10.2.2)
       '@vxrn/query-string': 1.27.1
       '@vxrn/resolve': 1.27.1
@@ -11712,7 +11712,7 @@ snapshots:
       '@vxrn/utils': 1.27.1(supports-color@10.2.2)
       '@vxrn/vendor': 1.27.1
       '@vxrn/vite-flow': 1.27.1(@types/node@26.6.4)(esbuild@0.28.1)(jiti@1.21.7)(terser@5.51.2)(yaml@2.9.1)
-      '@vxrn/vite-plugin-metro': 1.27.1(699d0e518e54ddcace59a52b58041278)
+      '@vxrn/vite-plugin-metro': 1.27.1(37988766c33c069e4f8fa6c3f087c857)
       citty: 0.1.6
       dotenv: 17.4.2
       dotenv-expand: 12.0.3
