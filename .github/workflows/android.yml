@@ -75,6 +75,14 @@ jobs:
           if [ ! -f android/gradlew ]; then
             pnpm exec one prebuild --platform android
           fi
+          # babel/metro configs are generated (gitignored): writing them at build
+          # time keeps `one build` (web) from flipping to native resolution.
+          pnpm exec one metro-eject
+          # Pin KGP to a version compatible with the Gradle the RNGP resolves
+          # and with pika-compiler's 1.0.0-<kotlin> releases (<=2.2.x only).
+          grep -q '^android\.kotlinVersion=' android/gradle.properties \
+            && sed -i 's/^android\.kotlinVersion=.*/android.kotlinVersion=2.2.21/' android/gradle.properties \
+            || echo 'android.kotlinVersion=2.2.21' >> android/gradle.properties
           echo "sdk.dir=$ANDROID_HOME" > android/local.properties
 
       - name: Build debug APK
