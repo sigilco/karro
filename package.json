@@ -16,7 +16,7 @@
     "lint": "oxlint",
     "fmt": "oxfmt",
     "native:config": "one metro-eject",
-    "build:android": "one metro-eject && ./android/gradlew -p android assembleRelease"
+    "build:android": "one metro-eject && (./android/gradlew -p android assembleRelease; rm -f babel.config.cjs metro.config.cjs)"
   },
   "dependencies": {
     "@react-navigation/native": "~7.3.16",
