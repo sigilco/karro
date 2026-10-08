@@ -1,9 +1,0 @@
-Metadata-Version: 2.4
-Name: karro-shim
-Version: 0.1.0
-Summary: Karro POC data shim — FastAPI /v1 surface over Málaga parking feeds
-Requires-Python: >=3.11
-Requires-Dist: fastapi>=0.115
-Requires-Dist: uvicorn[standard]>=0.30
-Requires-Dist: httpx>=0.27
-Requires-Dist: tzdata>=2024.1

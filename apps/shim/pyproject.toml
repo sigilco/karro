@@ -2,7 +2,7 @@
 name = "karro-shim"
 version = "0.1.0"
 description = "Karro POC data shim — FastAPI /v1 surface over Málaga parking feeds"
-requires-python = ">=3.11"
+requires-python = ">=3.10"
 dependencies = [
     "fastapi>=0.115",
     "uvicorn[standard]>=0.30",
