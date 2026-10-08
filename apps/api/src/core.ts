@@ -4,6 +4,10 @@
 
 import { Hono } from "hono";
 import { cors } from "hono/cors";
+import * as v from "valibot";
+// The shared wire contract — relative path (not ~/) so the node dev entry's
+// type-stripping resolves it; wrangler bundles it for the worker.
+import { IntentPayload } from "../../../packages/contract/src/index.ts";
 import { CATALOG as CATALOG_ROWS, SECTOR_SPACES, ZONES } from "./data.ts";
 import type { ExtSignalRow } from "./sources/types.ts";
 import { haversineKm, madridDayKey } from "./sources/util.ts";
@@ -160,6 +164,10 @@ export interface HistoryStore {
   historyDepthDays(): number;
   /** park/depart events within radiusKm of a point */
   parkEventCount(lat: number, lon: number, radiusKm: number): number;
+  /** Landing-page "bring Karro to my city" votes — the which-city-next feed. */
+  recordIntent(e: { ts: number; country: string; city?: string; client?: string }): void;
+  /** Intent votes grouped by country, descending count. */
+  intentSummary(): { country: string; n: number }[];
   // ── External signals (Part B) — optional: the node dev entry can run
   // without them. SqlHistory persists them in ext_signal.
   /** Replace a source's whole snapshot (bounded: ~latest rows only). */
@@ -194,6 +202,7 @@ export function createMemoryHistory(): Required<HistoryStore> {
     { how: number; sum: number; n: number; min: number; max: number; hourTs: number }
   >();
   const parkEvents: { ts: number; kind: string; lat: number; lon: number }[] = [];
+  const intents: { ts: number; country: string; city?: string; client?: string }[] = [];
   const signals = new Map<string, ExtSignalRow[]>();
   const lastPoll = new Map<string, number>();
   return {
@@ -245,6 +254,16 @@ export function createMemoryHistory(): Required<HistoryStore> {
     },
     parkEventCount(lat, lon, radiusKm) {
       return parkEvents.filter((e) => haversineKm(lat, lon, e.lat, e.lon) <= radiusKm).length;
+    },
+    recordIntent(e) {
+      intents.push(e);
+    },
+    intentSummary() {
+      const byCountry = new Map<string, number>();
+      for (const i of intents) byCountry.set(i.country, (byCountry.get(i.country) ?? 0) + 1);
+      return [...byCountry.entries()]
+        .map(([country, n]) => ({ country, n }))
+        .sort((a, b) => b.n - a.n || a.country.localeCompare(b.country));
     },
     replaceSignals(source, rows, nowMs) {
       signals.set(source, rows);
@@ -619,6 +638,32 @@ export function createApiApp(state: FeedState, history?: HistoryStore): Hono {
       clientId: typeof body.clientId === "string" ? body.clientId.slice(0, 64) : undefined,
     });
     return c.json({ ok: true }, 202);
+  });
+
+  // Landing-page "bring Karro to my city" votes — feeds the which-city-next
+  // decision; rows land in the same DO SQLite store as everything else.
+  app.post("/v1/intent", async (c) => {
+    if (!history) return c.json({ error: "history not enabled" }, 501);
+    const parsed = v.safeParse(IntentPayload, await c.req.json().catch(() => null));
+    if (!parsed.success) {
+      return c.json({ error: "expected {country: string, city?: string}" }, 400);
+    }
+    history.recordIntent({
+      ts: Date.now(),
+      country: parsed.output.country,
+      city: parsed.output.city,
+      client: parsed.output.clientId,
+    });
+    return c.json({ ok: true }, 202);
+  });
+
+  app.get("/v1/intent/summary", (c) => {
+    const countries = history?.intentSummary() ?? [];
+    return c.json({
+      generatedAt: madridParts().iso,
+      total: countries.reduce((a, r) => a + r.n, 0),
+      countries,
+    });
   });
 
   // Optimistic street-level forecast for a point: difficulty + confidence.

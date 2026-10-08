@@ -158,7 +158,7 @@ export default function SharePage(): JSX.Element {
 
       <div className="flex flex-col gap-3">
         <a
-          href="/"
+          href="/map"
           className="block w-full rounded-2xl bg-easy px-6 py-4 text-center text-base font-bold text-surface transition-opacity active:opacity-80"
         >
           Open live map

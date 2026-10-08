@@ -9,6 +9,7 @@ import {
   SignalsResponse,
   StreetForecast,
 } from "./index";
+import type { IntentPayload } from "./index";
 
 // API base resolution order:
 // 1. `?api=<url>` query param (persists to localStorage) — lets the shim URL
@@ -60,4 +61,14 @@ export const api = {
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ kind, lat, lon, ts: Date.now(), clientId }),
     }).catch(() => undefined),
+  // landing-page "bring Karro to my city" vote; throws on non-2xx so the
+  // form can show its retry state
+  postIntent: async (payload: IntentPayload) => {
+    const res = await fetch(`${BASE}/v1/intent`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) throw new Error(`/v1/intent → ${res.status}`);
+  },
 };

@@ -1,296 +1,296 @@
 import { useState } from "react";
 import type { JSX } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { Link } from "one";
-import type { OneRouter } from "one";
 import { api } from "~/packages/contract/src/client";
-import type { Facility } from "~/packages/contract/src";
-import { FacilityMap } from "~/components/map/FacilityMap";
-import {
-  distanceKm,
-  formatAge,
-  isStale,
-  nearestByDistance,
-  pressure,
-  velocityLabel,
-} from "~/packages/geo/src";
-import { ThemeToggle } from "~/packages/ui";
+import { getClientId } from "~/components/flows/clientId";
+import { Button, Card, ThemeToggle } from "~/packages/ui";
 
-const MALAGA_CENTER = { lat: 36.72, lon: -4.42 };
-const NEAREST_COUNT = 3;
+// /install is a placeholder anchor until TestFlight / Play internal exist.
+// Plain <a>, not Link — it is not a generated route yet.
+const INSTALL_IOS = "/install#ios";
+const INSTALL_ANDROID = "/install#android";
 
-// /dest is a sibling-owned route — not in this checkout's generated routes,
-// so the literal needs a cast; it resolves to a real route at integration.
-const DEST_HREF = "/dest" as OneRouter.Href;
+const COUNTRIES = [
+  { code: "ES", label: "Spain" },
+  { code: "PT", label: "Portugal" },
+  { code: "FR", label: "France" },
+  { code: "IT", label: "Italy" },
+  { code: "DE", label: "Germany" },
+  { code: "UK", label: "United Kingdom" },
+  { code: "US", label: "United States" },
+  { code: "OTHER", label: "Somewhere else" },
+];
 
-const PRESSURE_PILL: Record<string, string> = {
-  easy: "bg-easy/20 text-easy",
-  medium: "bg-medium/20 text-medium",
-  hard: "bg-hard/20 text-hard",
-  unknown: "bg-ink-dim/20 text-ink-dim",
-};
-
-const VELOCITY_TEXT: Record<string, string> = {
-  easy: "text-easy",
-  hard: "text-hard",
-  dim: "text-ink-dim",
-};
-
-export default function HomePage(): JSX.Element {
-  const [selectedId, setSelectedId] = useState<string | undefined>(undefined);
-
-  const facilitiesQuery = useQuery({
-    queryKey: ["facilities"],
-    queryFn: api.facilities,
-    refetchInterval: 30_000,
-  });
-
-  const facilities = facilitiesQuery.data?.facilities ?? [];
-  const selected =
-    selectedId === undefined ? undefined : facilities.find((f) => f.id === selectedId);
-  const nearest = nearestByDistance(facilities, MALAGA_CENTER, NEAREST_COUNT);
-
-  const feedAgeS = facilitiesQuery.data
-    ? facilities.reduce((max, f) => Math.max(max, f.dataAgeS), 0)
-    : undefined;
-  const feedStale = feedAgeS !== undefined && isStale(feedAgeS);
-
+export default function LandingPage(): JSX.Element {
   return (
-    <div className="relative h-full w-full overflow-hidden bg-surface text-ink">
-      <FacilityMap
-        className="absolute inset-0 h-full w-full"
-        facilities={facilities}
-        targetId={selectedId}
-        follow={selected ? { lat: selected.lat, lon: selected.lon } : undefined}
-        onSelect={setSelectedId}
-      />
-
-      {/* Search affordance → /dest */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 flex flex-col items-center px-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
-        <Link
-          href={DEST_HREF}
-          className="pointer-events-auto flex w-full max-w-md items-center gap-3 rounded-2xl border border-ink/10 bg-surface-2/90 px-4 py-3 text-ink-dim shadow-xl backdrop-blur"
-        >
-          <svg
-            viewBox="0 0 24 24"
-            className="h-5 w-5 shrink-0"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-          >
-            <circle cx="11" cy="11" r="7" />
-            <path d="m20 20-3.5-3.5" />
-          </svg>
-          <span className="flex-1 text-left text-[15px]">Where are you parking?</span>
-          <span className="text-accent">→</span>
-        </Link>
-
-        {/* data freshness chip + theme toggle */}
-        <div className="pointer-events-auto mt-2 flex w-full max-w-md items-center justify-between">
-          <FeedChip
-            pending={facilitiesQuery.isPending}
-            errored={facilitiesQuery.isError}
-            feedAgeS={feedAgeS}
-            stale={feedStale}
-          />
+    <div className="min-h-dvh bg-surface text-ink">
+      <div className="mx-auto flex min-h-dvh w-full max-w-5xl flex-col px-6">
+        <header className="flex items-center justify-between py-6">
+          <span className="text-sm font-bold tracking-widest">KARRO</span>
           <ThemeToggle />
-        </div>
-      </div>
+        </header>
 
-      {/* bottom sheet: selected facility detail or nearest-3 list */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 flex justify-center px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
-        <div className="pointer-events-auto w-full max-w-md">
-          {selected ? (
-            <FacilityCard facility={selected} onClose={() => setSelectedId(undefined)} />
-          ) : (
-            <NearestSheet facilities={nearest} onPick={setSelectedId} />
-          )}
-        </div>
+        <main className="flex flex-1 flex-col items-center gap-10 py-6 md:flex-row md:items-center md:gap-14">
+          <div className="w-full max-w-md">
+            <h1 className="text-5xl font-black tracking-tight">Karro</h1>
+            <p className="mt-3 text-xl leading-snug text-ink">
+              Parking that'll still be there when you arrive.
+            </p>
+            <p className="mt-2 text-sm text-ink-dim">
+              Live now in Málaga — garages + street zones. More cities soon.
+            </p>
+
+            <div className="mt-8 flex flex-col gap-3">
+              <Link
+                href="/map"
+                className="inline-flex h-14 items-center justify-center gap-2 rounded-2xl bg-accent px-6 text-base font-bold text-surface transition-transform active:scale-[0.98]"
+              >
+                Run app (web) <span aria-hidden="true">→</span>
+              </Link>
+              <div className="grid grid-cols-2 gap-3">
+                <a
+                  href={INSTALL_IOS}
+                  aria-disabled="true"
+                  className="flex h-14 flex-col items-center justify-center rounded-2xl border border-ink-dim/25 bg-surface-2 text-ink opacity-60"
+                >
+                  <span className="text-sm font-semibold">Install on iOS</span>
+                  <span className="text-[11px] text-ink-dim">TestFlight soon</span>
+                </a>
+                <a
+                  href={INSTALL_ANDROID}
+                  aria-disabled="true"
+                  className="flex h-14 flex-col items-center justify-center rounded-2xl border border-ink-dim/25 bg-surface-2 text-ink opacity-60"
+                >
+                  <span className="text-sm font-semibold">Install on Android</span>
+                  <span className="text-[11px] text-ink-dim">APK / Play internal soon</span>
+                </a>
+              </div>
+            </div>
+
+            <IntentForm />
+          </div>
+
+          <PhonePreview />
+        </main>
+
+        <footer className="py-6 text-center text-xs text-ink-dim">
+          No accounts · no tracking — a Málaga parking POC
+        </footer>
       </div>
     </div>
   );
 }
 
-function FeedChip(props: {
-  pending: boolean;
-  errored: boolean;
-  feedAgeS: number | undefined;
-  stale: boolean;
-}): JSX.Element {
-  if (props.errored) {
-    return (
-      <span className="rounded-full border border-hard/40 bg-surface-2/90 px-3 py-1 text-xs text-hard backdrop-blur">
-        live feed offline — retrying
-      </span>
-    );
-  }
-  if (props.pending || props.feedAgeS === undefined) {
-    return (
-      <span className="rounded-full border border-ink/10 bg-surface-2/90 px-3 py-1 text-xs text-ink-dim backdrop-blur">
-        connecting to live feed…
-      </span>
-    );
-  }
-  return (
-    <span
-      className={`rounded-full border px-3 py-1 text-xs backdrop-blur ${
-        props.stale
-          ? "border-medium/40 bg-surface-2/90 text-medium"
-          : "border-ink/10 bg-surface-2/90 text-ink-dim"
-      }`}
-    >
-      data {formatAge(props.feedAgeS)}
-    </span>
-  );
-}
+// ── "Bring Karro here" intent form ──────────────────────────────────────────
+// One vote per submit; the API rows feed the which-city-next decision.
 
-function NearestSheet(props: {
-  facilities: Facility[];
-  onPick: (id: string) => void;
-}): JSX.Element {
+function IntentForm(): JSX.Element {
+  const [country, setCountry] = useState("ES");
+  const [city, setCity] = useState("");
+  const [state, setState] = useState<"idle" | "sending" | "done" | "error">("idle");
+
+  async function submit(): Promise<void> {
+    setState("sending");
+    try {
+      await api.postIntent({
+        country,
+        city: city.trim() === "" ? undefined : city.trim(),
+        clientId: getClientId(),
+      });
+      setState("done");
+    } catch {
+      setState("error");
+    }
+  }
+
   return (
-    <div className="rounded-2xl border border-ink/10 bg-surface-2/95 shadow-2xl backdrop-blur">
-      <div className="px-4 pb-1 pt-3 text-xs font-semibold uppercase tracking-wide text-ink-dim">
-        Nearest garages
+    <Card className="mt-8">
+      <div className="text-xs font-semibold uppercase tracking-wide text-ink-dim">
+        Where should Karro come next?
       </div>
-      {props.facilities.length === 0 ? (
-        <div className="px-4 py-4 text-sm text-ink-dim">
-          No live facilities yet — searching is your best bet.
-        </div>
+      {state === "done" ? (
+        <p className="py-3 text-sm text-ink">Thanks — noted.</p>
       ) : (
-        <ul className="divide-y divide-ink/5">
-          {props.facilities.map((f) => (
-            <NearestRow key={f.id} facility={f} onPick={props.onPick} />
-          ))}
-        </ul>
-      )}
-    </div>
-  );
-}
-
-function NearestRow(props: { facility: Facility; onPick: (id: string) => void }): JSX.Element {
-  const f = props.facility;
-  const tone = pressure(f) ?? "unknown";
-  const vel = velocityLabel(f.velocityPerMin);
-  const stale = isStale(f.dataAgeS);
-  const km = distanceKm(f, MALAGA_CENTER);
-  return (
-    <li>
-      <button
-        type="button"
-        onClick={() => props.onPick(f.id)}
-        className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors active:bg-ink/5"
-      >
-        <span
-          className={`h-2.5 w-2.5 shrink-0 rounded-full ${
-            tone === "easy"
-              ? "bg-easy"
-              : tone === "medium"
-                ? "bg-medium"
-                : tone === "hard"
-                  ? "bg-hard"
-                  : "bg-ink-dim"
-          }`}
-        />
-        <span className="min-w-0 flex-1">
-          <span className="block truncate text-sm font-medium text-ink">{f.name}</span>
-          <span className="block text-xs text-ink-dim">{km.toFixed(1)} km</span>
-        </span>
-        <span
-          className={`text-right text-sm font-semibold tabular-nums ${
-            stale ? "text-ink-dim/60" : "text-ink"
-          }`}
-        >
-          {f.available === null ? "–" : f.available}
-        </span>
-        <span className={`w-20 text-right text-xs ${VELOCITY_TEXT[vel.tone]}`}>
-          {vel.arrow} {vel.text}
-        </span>
-      </button>
-    </li>
-  );
-}
-
-function FacilityCard(props: { facility: Facility; onClose: () => void }): JSX.Element {
-  const f = props.facility;
-  const tone = pressure(f) ?? "unknown";
-  const vel = velocityLabel(f.velocityPerMin);
-  const stale = isStale(f.dataAgeS);
-  return (
-    <div className="rounded-2xl border border-ink/10 bg-surface-2/95 p-4 shadow-2xl backdrop-blur">
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <div className="truncate text-base font-semibold text-ink">{f.name}</div>
-          <div className="mt-0.5 text-xs text-ink-dim">
-            {f.kind.replace("_", " ")} · data {formatAge(f.dataAgeS)}
-            {f.priceEurPerHour !== undefined && ` · €${f.priceEurPerHour.toFixed(2)}/h`}
-          </div>
-        </div>
-        <button
-          type="button"
-          onClick={props.onClose}
-          className="rounded-full px-2 py-1 text-ink-dim transition-colors active:bg-ink/10"
-          aria-label="Close"
-        >
-          ✕
-        </button>
-      </div>
-
-      <div className="mt-3 flex items-end gap-4">
-        <div>
-          <div
-            className={`text-2xl font-bold tabular-nums ${stale ? "text-ink-dim/60" : "text-ink"}`}
-          >
-            {f.available === null ? "–" : f.available}
-            <span className="text-sm font-normal text-ink-dim">
-              {f.capacity === null ? "" : ` / ${f.capacity}`}
-            </span>
-          </div>
-          <div className="text-xs text-ink-dim">free now</div>
-        </div>
-        <div className={`text-sm font-medium ${VELOCITY_TEXT[vel.tone]}`}>
-          {vel.arrow} {vel.text}
-        </div>
-        <span
-          className={`ml-auto rounded-full px-2.5 py-1 text-xs font-semibold uppercase ${PRESSURE_PILL[tone]}`}
-        >
-          {tone === "unknown" ? "no data" : tone}
-        </span>
-      </div>
-
-      <div className="mt-4 flex items-end justify-between gap-4">
-        <div>
-          <div className="mb-1 text-[11px] uppercase tracking-wide text-ink-dim">
-            projected +5–20 min
-          </div>
-          <ProjectedSpark values={f.projected} capacity={f.capacity} />
-        </div>
-        <Link
-          href={`/dest?facility=${encodeURIComponent(f.id)}` as OneRouter.Href}
-          className="shrink-0 rounded-xl bg-accent px-6 py-3 text-base font-bold text-surface shadow-lg transition-transform active:scale-95"
-        >
-          GO
-        </Link>
-      </div>
-    </div>
-  );
-}
-
-function ProjectedSpark(props: { values: number[]; capacity: number | null }): JSX.Element {
-  const max = Math.max(props.capacity ?? 0, ...props.values, 1);
-  return (
-    <div className="flex h-9 items-end gap-1.5">
-      {props.values.map((v, i) => (
-        <div
-          key={i}
-          className="w-4 rounded-sm bg-accent/70"
-          style={{
-            height: `${Math.max(10, Math.round((v / max) * 100))}%`,
+        <form
+          className="mt-3 flex flex-col gap-3 sm:flex-row"
+          onSubmit={(e) => {
+            e.preventDefault();
+            void submit();
           }}
-          title={`+${(i + 1) * 5} min: ${Math.round(v)} free`}
-        />
-      ))}
+        >
+          <select
+            value={country}
+            onChange={(e) => setCountry(e.target.value)}
+            aria-label="Country"
+            className="h-11 flex-1 rounded-xl border border-ink/10 bg-surface px-3 text-sm text-ink"
+          >
+            {COUNTRIES.map((c) => (
+              <option key={c.code} value={c.code}>
+                {c.label}
+              </option>
+            ))}
+          </select>
+          <input
+            value={city}
+            onChange={(e) => setCity(e.target.value)}
+            placeholder="City (optional)"
+            aria-label="City (optional)"
+            maxLength={120}
+            className="h-11 flex-1 rounded-xl border border-ink/10 bg-surface px-3 text-sm text-ink placeholder:text-ink-dim"
+          />
+          <Button type="submit" disabled={state === "sending"} className="h-11">
+            {state === "sending" ? "Sending…" : "Vote"}
+          </Button>
+        </form>
+      )}
+      {state === "error" ? (
+        <p className="mt-2 text-xs text-hard">Couldn't save that — try again.</p>
+      ) : undefined}
+    </Card>
+  );
+}
+
+// ── Animated phone preview ───────────────────────────────────────────────────
+// Four stylized app states on one 12s CSS cycle (map → ETA difficulty →
+// glance → parked). See .karro-screen in global.css.
+
+function PhonePreview(): JSX.Element {
+  return (
+    <div className="flex flex-col items-center gap-3">
+      <div className="relative aspect-[9/19] w-[240px] overflow-hidden rounded-[2.6rem] border-[5px] border-ink/15 bg-surface-2 shadow-2xl">
+        <div className="absolute inset-x-0 top-2 z-10 mx-auto h-5 w-20 rounded-full bg-surface" />
+        <PreviewMap />
+        <PreviewEta />
+        <PreviewGlance />
+        <PreviewParked />
+      </div>
+      <div className="flex gap-2" aria-hidden="true">
+        <span className="karro-dot h-1.5 w-1.5 rounded-full bg-accent" />
+        <span className="karro-dot h-1.5 w-1.5 rounded-full bg-accent" />
+        <span className="karro-dot h-1.5 w-1.5 rounded-full bg-accent" />
+        <span className="karro-dot h-1.5 w-1.5 rounded-full bg-accent" />
+      </div>
+      <span className="text-[11px] text-ink-dim">drive mode · live demo</span>
+    </div>
+  );
+}
+
+function PreviewMap(): JSX.Element {
+  return (
+    <div className="karro-screen flex flex-col bg-surface p-3 pt-10">
+      <div className="relative flex-1 overflow-hidden rounded-2xl bg-surface-2">
+        {/* stylized street grid */}
+        <div className="absolute inset-x-0 top-[28%] h-px bg-ink/10" />
+        <div className="absolute inset-x-0 top-[58%] h-px bg-ink/10" />
+        <div className="absolute inset-x-0 top-[82%] h-px bg-ink/10" />
+        <div className="absolute inset-y-0 left-[24%] w-px bg-ink/10" />
+        <div className="absolute inset-y-0 left-[58%] w-px bg-ink/10" />
+        <div className="absolute left-[30%] top-[30%] h-[52%] w-1 -rotate-[24deg] rounded bg-accent/25" />
+        {/* pins: easy / medium / hard */}
+        <Pin className="left-[18%] top-[38%]" tone="bg-easy" ring />
+        <Pin className="left-[62%] top-[22%]" tone="bg-easy" ring />
+        <Pin className="left-[70%] top-[62%]" tone="bg-medium" />
+        <Pin className="left-[30%] top-[72%]" tone="bg-hard" />
+        {/* you-are-here dot */}
+        <div className="absolute left-[46%] top-[48%] h-3 w-3 rounded-full border-2 border-surface bg-accent shadow" />
+      </div>
+      <div className="mt-3 rounded-xl bg-surface-2 px-3 py-2">
+        <div className="text-[10px] uppercase tracking-wide text-ink-dim">Nearest</div>
+        <div className="mt-1 flex items-center justify-between text-[11px]">
+          <span className="text-ink">Almanzor</span>
+          <span className="font-semibold text-easy">24 free</span>
+        </div>
+        <div className="mt-1 flex items-center justify-between text-[11px]">
+          <span className="text-ink">Tejón y Rodríguez</span>
+          <span className="font-semibold text-medium">7 free</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Pin(props: { className: string; tone: string; ring?: boolean }): JSX.Element {
+  return (
+    <div className={`absolute ${props.className}`}>
+      {props.ring ? (
+        <span className={`karro-ping absolute inset-0 rounded-full ${props.tone}`} />
+      ) : undefined}
+      <span
+        className={`relative block h-2.5 w-2.5 rounded-full border border-surface ${props.tone}`}
+      />
+    </div>
+  );
+}
+
+function PreviewEta(): JSX.Element {
+  return (
+    <div className="karro-screen flex flex-col justify-end bg-surface p-3 pt-10">
+      <div className="flex-1" />
+      <div className="rounded-2xl bg-surface-2 p-4">
+        <div className="text-[10px] uppercase tracking-wide text-ink-dim">Difficulty at ETA</div>
+        <div className="mt-1 flex items-baseline gap-2">
+          <span className="text-2xl font-black text-medium">MEDIUM</span>
+          <span className="text-[11px] text-ink-dim">arriving 18:40</span>
+        </div>
+        <div className="mt-3 flex items-end gap-1.5">
+          {[38, 30, 22, 18].map((h, i) => (
+            <div
+              key={i}
+              className="w-5 rounded-sm bg-medium/70"
+              style={{ height: `${h}px` }}
+            />
+          ))}
+          <span className="ml-auto text-[10px] text-ink-dim">+5 → +20 min</span>
+        </div>
+        <div className="mt-3 rounded-lg bg-medium/15 px-2.5 py-1.5 text-[10px] text-medium">
+          rain likely at that hour (72%)
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PreviewGlance(): JSX.Element {
+  return (
+    <div className="karro-screen flex flex-col bg-surface p-3 pt-10">
+      <div className="flex flex-1 flex-col items-center justify-center gap-2 text-center">
+        <div className="text-[10px] uppercase tracking-widest text-ink-dim">Nearby now</div>
+        <div className="text-6xl font-black text-easy">2</div>
+        <div className="text-xs text-ink-dim">garages likely free</div>
+        <div className="mt-2 rounded-full bg-surface-2 px-3 py-1 text-[11px] text-ink">
+          Almanzor · 142 m →
+        </div>
+      </div>
+      <div className="rounded-2xl bg-easy py-3 text-center text-sm font-bold text-surface">
+        GO
+      </div>
+    </div>
+  );
+}
+
+function PreviewParked(): JSX.Element {
+  return (
+    <div className="karro-screen flex flex-col items-center justify-center gap-3 bg-surface p-3 pt-10 text-center">
+      <div className="flex h-14 w-14 items-center justify-center rounded-full bg-easy/15">
+        <svg viewBox="0 0 24 24" className="h-7 w-7" fill="none" aria-hidden="true">
+          <path
+            d="m5 13 4 4L19 7"
+            stroke="var(--color-easy)"
+            strokeWidth="2.4"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </div>
+      <div className="text-lg font-bold text-ink">Parked</div>
+      <div className="text-xs text-ink-dim">
+        4 min walk to Almanzor
+        <br />
+        SARE free until 09:00
+      </div>
+      <div className="mt-1 rounded-full bg-surface-2 px-3 py-1 text-[10px] text-ink-dim">
+        we'll remember the spot
+      </div>
     </div>
   );
 }

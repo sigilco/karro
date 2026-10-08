@@ -67,6 +67,11 @@ class SqlHistory implements HistoryStore {
       )`,
     );
     sql.exec("CREATE INDEX IF NOT EXISTS ext_signal_src ON ext_signal(source)");
+    // Landing-page "bring Karro to my city" votes — tiny, kept forever.
+    sql.exec(
+      "CREATE TABLE IF NOT EXISTS intent (ts INTEGER NOT NULL, country TEXT NOT NULL, city TEXT, client TEXT)",
+    );
+    sql.exec("CREATE INDEX IF NOT EXISTS intent_ts ON intent(ts)");
   }
 
   private metaGet(k: string): number {
@@ -211,6 +216,25 @@ class SqlHistory implements HistoryStore {
         rows: Number(r.n),
         lastPollMs: this.metaGet(`lastPoll:${String(r.source)}`),
       }));
+  }
+
+  recordIntent(e: { ts: number; country: string; city?: string; client?: string }): void {
+    this.sql.exec(
+      "INSERT INTO intent (ts, country, city, client) VALUES (?, ?, ?, ?)",
+      e.ts,
+      e.country,
+      e.city ?? null,
+      e.client ?? null,
+    );
+  }
+
+  intentSummary(): { country: string; n: number }[] {
+    return this.sql
+      .exec(
+        "SELECT country, COUNT(*) n FROM intent GROUP BY country ORDER BY n DESC, country",
+      )
+      .toArray()
+      .map((r) => ({ country: String(r.country), n: Number(r.n) }));
   }
 }
 

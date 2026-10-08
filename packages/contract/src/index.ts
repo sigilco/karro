@@ -120,3 +120,20 @@ export type Forecast = v.InferOutput<typeof Forecast>;
 export interface ZoneProperties extends ZoneRegime {
   name?: string;
 }
+
+// Landing-page "bring Karro to my city" vote — POST /v1/intent.
+// country is an ISO-ish code from the picker (ES/PT/…/OTHER), city a
+// free-text refinement, clientId the anonymous telemetry id.
+export const IntentPayload = v.object({
+  country: v.pipe(v.string(), v.trim(), v.minLength(1), v.maxLength(64)),
+  city: v.optional(v.pipe(v.string(), v.trim(), v.maxLength(120))),
+  clientId: v.optional(v.pipe(v.string(), v.maxLength(64))),
+});
+export type IntentPayload = v.InferOutput<typeof IntentPayload>;
+
+export const IntentSummary = v.object({
+  generatedAt: v.string(),
+  total: v.number(),
+  countries: v.array(v.object({ country: v.string(), n: v.number() })),
+});
+export type IntentSummary = v.InferOutput<typeof IntentSummary>;
