@@ -9,12 +9,16 @@ export type Theme = "dark" | "light";
 const STORAGE_KEY = "karro_theme";
 
 function readInitial(): Theme {
-  // RN Hermes exposes `window` but not `localStorage` — guard the storage
-  // global itself, not window, or this throws at module load on native.
-  if (typeof window === "undefined" || typeof localStorage === "undefined") return "dark";
-  const stored = localStorage.getItem(STORAGE_KEY);
-  if (stored === "light" || stored === "dark") return stored;
-  return window.matchMedia?.("(prefers-color-scheme: light)").matches ? "light" : "dark";
+  // localStorage can be missing entirely (SSR), undefined (RN Hermes), or
+  // null (android WebView with domStorageEnabled off) — any access may
+  // throw, so a plain typeof guard is not enough.
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored === "light" || stored === "dark") return stored;
+    return window.matchMedia?.("(prefers-color-scheme: light)").matches ? "light" : "dark";
+  } catch {
+    return "dark";
+  }
 }
 
 let current: Theme = readInitial();
