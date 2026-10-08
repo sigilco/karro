@@ -16,6 +16,9 @@
   },
   "ios": {
     "bundleIdentifier": "com.sigilco.karro",
-    "supportsTablet": true
+    "supportsTablet": true,
+    "infoPlist": {
+      "ITSAppUsesNonExemptEncryption": false
+    }
   }
 }
