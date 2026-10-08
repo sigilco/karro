@@ -1,24 +1,26 @@
 {
-  "name": "Karro",
-  "slug": "karro",
-  "scheme": "karro",
-  "version": "0.1.0",
-  "orientation": "portrait",
-  "userInterfaceStyle": "automatic",
-  "backgroundColor": "#0b0f0c",
-  "icon": "./public/icons/icon-512.png",
-  "android": {
-    "package": "com.sigilco.karro",
-    "adaptiveIcon": {
-      "foregroundImage": "./public/icons/icon-maskable-512.png",
-      "backgroundColor": "#0b0f0c"
-    }
-  },
-  "ios": {
-    "bundleIdentifier": "com.sigilco.karro",
-    "supportsTablet": true,
-    "infoPlist": {
-      "ITSAppUsesNonExemptEncryption": false
+  "expo": {
+    "name": "Karro",
+    "slug": "karro",
+    "scheme": "karro",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "backgroundColor": "#0b0f0c",
+    "icon": "./public/icons/icon-512.png",
+    "android": {
+      "package": "com.sigilco.karro",
+      "adaptiveIcon": {
+        "foregroundImage": "./public/icons/icon-maskable-512.png",
+        "backgroundColor": "#0b0f0c"
+      }
+    },
+    "ios": {
+      "bundleIdentifier": "com.sigilco.karro",
+      "supportsTablet": true,
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     }
   }
 }

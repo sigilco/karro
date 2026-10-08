@@ -18,14 +18,17 @@ import type { IntentPayload } from "./index";
 // 3. ONE_PUBLIC_API_URL baked at build time
 // 4. '' (same origin)
 function resolveBase(): string {
-  if (typeof window === "undefined") return "";
+  // RN Hermes exposes `window` but not `localStorage` — guard the storage
+  // global itself so module load doesn't throw on native (falls through
+  // to the baked ONE_PUBLIC_API_URL).
+  if (typeof window === "undefined" || typeof localStorage === "undefined") return "";
   const param = new URLSearchParams(window.location.search).get("api");
   if (param) {
     const clean = param.replace(/\/$/, "");
-    window.localStorage.setItem("karro_api", clean);
+    localStorage.setItem("karro_api", clean);
     return clean;
   }
-  return window.localStorage.getItem("karro_api") ?? "";
+  return localStorage.getItem("karro_api") ?? "";
 }
 
 // NOTE: must be a literal `import.meta.env.KEY` access — the metro

@@ -9,8 +9,10 @@ export type Theme = "dark" | "light";
 const STORAGE_KEY = "karro_theme";
 
 function readInitial(): Theme {
-  if (typeof window === "undefined") return "dark";
-  const stored = window.localStorage.getItem(STORAGE_KEY);
+  // RN Hermes exposes `window` but not `localStorage` — guard the storage
+  // global itself, not window, or this throws at module load on native.
+  if (typeof window === "undefined" || typeof localStorage === "undefined") return "dark";
+  const stored = localStorage.getItem(STORAGE_KEY);
   if (stored === "light" || stored === "dark") return stored;
   return window.matchMedia?.("(prefers-color-scheme: light)").matches ? "light" : "dark";
 }
@@ -31,7 +33,7 @@ export function getTheme(): Theme {
 export function setTheme(theme: Theme): void {
   current = theme;
   try {
-    window.localStorage.setItem(STORAGE_KEY, theme);
+    localStorage.setItem(STORAGE_KEY, theme);
   } catch {
     // private-mode storage — theme still applies for the session
   }
