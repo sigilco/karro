@@ -19,6 +19,7 @@
     "build:android": "one metro-eject && (./android/gradlew -p android assembleRelease; rm -f babel.config.cjs metro.config.cjs)"
   },
   "dependencies": {
+    "@expo/dom-webview": "58.0.0-canary-20260909-ea7a89a",
     "@react-navigation/native": "~7.3.16",
     "@tailwindcss/vite": "^4.3.3",
     "@tanstack/react-query": "^5.90.0",
