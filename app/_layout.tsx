@@ -2,6 +2,7 @@ import './global.css'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Slot } from 'one'
 import { Platform } from 'react-native'
+import { THEME_BOOTSTRAP_JS } from '~/packages/ui/theme'
 
 const queryClient = new QueryClient()
 
@@ -24,6 +25,9 @@ export default function Layout() {
           <meta
             name="apple-mobile-web-app-status-bar-style"
             content="black-translucent"
+          />
+          <script
+            dangerouslySetInnerHTML={{ __html: THEME_BOOTSTRAP_JS }}
           />
           <script src="/register-sw.js" defer />
         </head>

@@ -1,0 +1,14 @@
+name = "karro-api"
+main = "src/worker.ts"
+compatibility_date = "2026-10-01"
+compatibility_flags = ["nodejs_compat"]
+
+[triggers]
+crons = ["* * * * *"]
+
+[durable_objects]
+bindings = [{ name = "FEED", class_name = "FeedDO" }]
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["FeedDO"]

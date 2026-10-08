@@ -6,6 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { api } from "~/packages/contract/src/client";
 import type { Facility } from "~/packages/contract/src";
 import { pressure, ZONE_COLORS, ZONE_FILL_OPACITY, ZBE_OUTLINE_COLOR } from "~/packages/geo/src";
+import { getTheme, useTheme } from "~/packages/ui/theme";
 
 // ── Contract ──────────────────────────────────────────────────────────────
 // Frozen signature — sibling screens import this component.
@@ -32,10 +33,15 @@ export interface FacilityMapProps {
 const MALAGA_CENTER: [number, number] = [-4.42, 36.72];
 const EMPTY_FC: FeatureCollection = { type: "FeatureCollection", features: [] };
 
-// OpenFreeMap "dark" vector style — free, no key (Carto dark_all raster now
-// watermarks "API KEY REQUIRED"). Kept as a URL so MapLibre loads the style
+// OpenFreeMap vector styles — free, no key (Carto dark_all raster now
+// watermarks "API KEY REQUIRED"). Kept as URLs so MapLibre loads the style
 // document directly; attribution is embedded in the style's sources.
 const DARK_BASEMAP_STYLE = "https://tiles.openfreemap.org/styles/dark";
+const LIGHT_BASEMAP_STYLE = "https://tiles.openfreemap.org/styles/positron";
+
+function basemapForTheme(): string {
+  return getTheme() === "light" ? LIGHT_BASEMAP_STYLE : DARK_BASEMAP_STYLE;
+}
 
 const ZONE_FILL_COLOR: maplibregl.ExpressionSpecification = [
   "match",
@@ -72,6 +78,7 @@ interface MapHost {
     facilities: readonly Facility[] | null;
     zones: FeatureCollection | null;
     followKey: string | null;
+    basemap: string | null;
   };
 }
 
@@ -81,7 +88,7 @@ function createHost(): MapHost {
     loaded: false,
     props: null,
     pins: new Map(),
-    applied: { facilities: null, zones: null, followKey: null },
+    applied: { facilities: null, zones: null, followKey: null, basemap: null },
   };
 }
 
@@ -172,10 +179,18 @@ function applyFollow(host: MapHost, map: maplibregl.Map): void {
   });
 }
 
+function applyBasemap(host: MapHost, map: maplibregl.Map): void {
+  const want = basemapForTheme();
+  if (host.applied.basemap === want) return;
+  host.applied.basemap = want;
+  map.setStyle(want);
+}
+
 function applyProps(host: MapHost): void {
   const map = host.map;
   const props = host.props;
   if (!map || !props) return;
+  if (host.loaded) applyBasemap(host, map);
   syncPins(host, map, props.facilities);
   if (host.loaded) applyZones(host, map);
   applyFollow(host, map);
@@ -223,7 +238,7 @@ function addZoneLayers(map: maplibregl.Map): void {
 function mountMap(host: MapHost, el: HTMLDivElement): () => void {
   const map = new maplibregl.Map({
     container: el,
-    style: DARK_BASEMAP_STYLE,
+    style: basemapForTheme(),
     center: MALAGA_CENTER,
     zoom: 14,
     attributionControl: { compact: true },
@@ -241,6 +256,14 @@ function mountMap(host: MapHost, el: HTMLDivElement): () => void {
     addZoneLayers(map);
     applyProps(host);
   });
+  // Re-add zone overlays after a theme-driven setStyle (custom layers are
+  // dropped with the old style; DOM markers survive).
+  map.on("style.load", () => {
+    if (!host.loaded || map.getSource("zones")) return;
+    addZoneLayers(map);
+    host.applied.zones = null;
+    applyProps(host);
+  });
   map.on("click", (e) => {
     host.props?.onZoneQuery?.(e.lngLat.lat, e.lngLat.lng);
   });
@@ -249,7 +272,7 @@ function mountMap(host: MapHost, el: HTMLDivElement): () => void {
     host.map = null;
     host.loaded = false;
     host.pins.clear();
-    host.applied = { facilities: null, zones: null, followKey: null };
+    host.applied = { facilities: null, zones: null, followKey: null, basemap: null };
     map.remove();
   };
 }
@@ -282,6 +305,8 @@ function useApplyAfterCommit(apply: () => void): void {
 export function FacilityMap(props: FacilityMapProps): JSX.Element {
   "use no memo"; // imperative map sync — skip React Compiler here
   const hostRef = useRef<MapHost | null>(null);
+  const theme = useTheme();
+  void theme; // subscribe so theme flips re-run the post-commit apply pass
 
   // Fetch zones ourselves unless the caller drives them via props.
   const zonesQuery = useQuery({

@@ -14,6 +14,7 @@ import {
   pressure,
   velocityLabel,
 } from "~/packages/geo/src";
+import { ThemeToggle } from "~/packages/ui";
 
 const MALAGA_CENTER = { lat: 36.72, lon: -4.42 };
 const NEAREST_COUNT = 3;
@@ -85,7 +86,7 @@ export default function HomePage(): JSX.Element {
           <span className="text-accent">→</span>
         </Link>
 
-        {/* data freshness chip */}
+        {/* data freshness chip + theme toggle */}
         <div className="pointer-events-auto mt-2 flex w-full max-w-md items-center justify-between">
           <FeedChip
             pending={facilitiesQuery.isPending}
@@ -93,6 +94,7 @@ export default function HomePage(): JSX.Element {
             feedAgeS={feedAgeS}
             stale={feedStale}
           />
+          <ThemeToggle />
         </div>
       </div>
 

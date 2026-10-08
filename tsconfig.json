@@ -18,6 +18,7 @@
   },
   "include": [
     "app",
+    "apps/api/src",
     "packages",
     "types",
     "vite.config.ts"

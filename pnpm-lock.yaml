@@ -25,7 +25,7 @@ importers:
         version: 5.24.0
       one:
         specifier: 1.27.1
-        version: 1.27.1(16f5afd85101ae9909a44e2a0720fe0c)
+        version: 1.27.1(61048cc376b15264478896b5cc34befd)
       react:
         specifier: 19.2.3
         version: 19.2.3
@@ -57,6 +57,9 @@ importers:
         specifier: ^1.1.0
         version: 1.5.0(typescript@7.0.2)
     devDependencies:
+      '@cloudflare/workers-types':
+        specifier: ^5.20261007.1
+        version: 5.20261007.1
       '@react-native-community/cli':
         specifier: ^20.2.0
         version: 20.2.0(supports-color@10.2.2)(typescript@7.0.2)
@@ -81,6 +84,9 @@ importers:
       vite:
         specifier: ^8.2.2
         version: 8.3.3(@types/node@26.6.4)(esbuild@0.28.1)(jiti@1.21.7)(terser@5.51.2)(yaml@2.9.1)
+      wrangler:
+        specifier: ^4.148.0
+        version: 4.148.0(@cloudflare/workers-types@5.20261007.1)(@types/node@26.6.4)
 
   apps/api:
     dependencies:
@@ -90,6 +96,13 @@ importers:
       hono:
         specifier: ^4.9
         version: 4.13.13
+    devDependencies:
+      '@cloudflare/workers-types':
+        specifier: ^5.20261007.1
+        version: 5.20261007.1
+      wrangler:
+        specifier: ^4.148.0
+        version: 4.148.0(@cloudflare/workers-types@5.20261007.1)(@types/node@26.6.4)
 
   packages/contract:
     dependencies:
@@ -553,6 +566,9 @@ packages:
     engines: {node: '>=16'}
     cpu: [x64]
     os: [win32]
+
+  '@cloudflare/workers-types@5.20261007.1':
+    resolution: {integrity: sha512-NUzZ+p0tDFK6RXbJ/pa7sTG93y5zoK34gIV2PGvUMA+pwoKBBAeTlnvrLaQsDWswYW5gQA/b124+XZc0tn8Ihg==}
 
   '@cspotcode/source-map-support@0.8.1':
     resolution: {integrity: sha512-IchNf6dN4tHoMFIn/7OE8LWZ19Y6q/67Bmf6vnGREv8RSbBVb9LPJxEcnwrcwX6ixSvaiGoomAUvu4YSxXrVgw==}
@@ -6261,14 +6277,14 @@ snapshots:
     optionalDependencies:
       workerd: 1.20261006.1
 
-  '@cloudflare/vite-plugin@1.63.0(@types/node@26.6.4)(vite@8.3.3(@types/node@26.6.4)(esbuild@0.28.1)(jiti@1.21.7)(terser@5.51.2)(yaml@2.9.1))(wrangler@4.148.0(@types/node@26.6.4))':
+  '@cloudflare/vite-plugin@1.63.0(@types/node@26.6.4)(vite@8.3.3(@types/node@26.6.4)(esbuild@0.28.1)(jiti@1.21.7)(terser@5.51.2)(yaml@2.9.1))(wrangler@4.148.0(@cloudflare/workers-types@5.20261007.1)(@types/node@26.6.4))':
     dependencies:
       '@cloudflare/unenv-preset': 2.16.2(unenv@2.0.0-rc.24)(workerd@1.20261006.1)
       miniflare: 5.20261006.0-alpha(@types/node@26.6.4)
       unenv: 2.0.0-rc.24
       vite: 8.3.3(@types/node@26.6.4)(esbuild@0.28.1)(jiti@1.21.7)(terser@5.51.2)(yaml@2.9.1)
       workerd: 1.20261006.1
-      wrangler: 4.148.0(@types/node@26.6.4)
+      wrangler: 4.148.0(@cloudflare/workers-types@5.20261007.1)(@types/node@26.6.4)
       ws: 8.21.0
     transitivePeerDependencies:
       - '@types/node'
@@ -6289,6 +6305,8 @@ snapshots:
 
   '@cloudflare/workerd-windows-64@1.20261006.1':
     optional: true
+
+  '@cloudflare/workers-types@5.20261007.1': {}
 
   '@cspotcode/source-map-support@0.8.1':
     dependencies:
@@ -10583,7 +10601,7 @@ snapshots:
 
   on-headers@1.1.0: {}
 
-  one@1.27.1(16f5afd85101ae9909a44e2a0720fe0c):
+  one@1.27.1(61048cc376b15264478896b5cc34befd):
     dependencies:
       '@azure/core-asynciterator-polyfill': 1.0.2
       '@babel/core': 7.29.7(supports-color@10.2.2)
@@ -10592,7 +10610,7 @@ snapshots:
       '@babel/traverse': 7.29.8(supports-color@10.2.2)
       '@babel/types': 7.29.8
       '@bacons/text-decoder': 0.0.0(react-native@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(@react-native-community/cli@20.2.0(supports-color@10.2.2)(typescript@7.0.2))(@react-native/metro-config@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(supports-color@10.2.2))(@types/react@19.3.0)(react@19.2.3)(supports-color@10.2.2))
-      '@cloudflare/vite-plugin': 1.63.0(@types/node@26.6.4)(vite@8.3.3(@types/node@26.6.4)(esbuild@0.28.1)(jiti@1.21.7)(terser@5.51.2)(yaml@2.9.1))(wrangler@4.148.0(@types/node@26.6.4))
+      '@cloudflare/vite-plugin': 1.63.0(@types/node@26.6.4)(vite@8.3.3(@types/node@26.6.4)(esbuild@0.28.1)(jiti@1.21.7)(terser@5.51.2)(yaml@2.9.1))(wrangler@4.148.0(@cloudflare/workers-types@5.20261007.1)(@types/node@26.6.4))
       '@radix-ui/react-slot': 1.4.0(@types/react@19.3.0)(react@19.2.3)
       '@react-native-masked-view/masked-view': 0.3.2(react-native@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(@react-native-community/cli@20.2.0(supports-color@10.2.2)(typescript@7.0.2))(@react-native/metro-config@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(supports-color@10.2.2))(@types/react@19.3.0)(react@19.2.3)(supports-color@10.2.2))(react@19.2.3)
       '@react-navigation/bottom-tabs': 7.18.18(9326ffa904c84bda2e9384e150a4d2fd)
@@ -11793,7 +11811,7 @@ snapshots:
       '@cloudflare/workerd-linux-arm64': 1.20261006.1
       '@cloudflare/workerd-windows-64': 1.20261006.1
 
-  wrangler@4.148.0(@types/node@26.6.4):
+  wrangler@4.148.0(@cloudflare/workers-types@5.20261007.1)(@types/node@26.6.4):
     dependencies:
       '@cloudflare/kv-asset-handler': 0.5.0
       '@cloudflare/unenv-preset': 2.16.2(unenv@2.0.0-rc.24)(workerd@1.20261006.1)
@@ -11804,6 +11822,7 @@ snapshots:
       unenv: 2.0.0-rc.24
       workerd: 1.20261006.1
     optionalDependencies:
+      '@cloudflare/workers-types': 5.20261007.1
       fsevents: 2.3.3
     transitivePeerDependencies:
       - '@types/node'
