@@ -28,10 +28,10 @@ function resolveBase(): string {
   return window.localStorage.getItem("karro_api") ?? "";
 }
 
-const BASE =
-  resolveBase() ||
-  (import.meta as unknown as { env: Record<string, string | undefined> }).env?.ONE_PUBLIC_API_URL ||
-  "";
+// NOTE: must be a literal `import.meta.env.KEY` access — the metro
+// import-meta-env babel plugin only rewrites that form (no casts, no `?.`),
+// and native builds get their API base baked in through it.
+const BASE = resolveBase() || import.meta.env.ONE_PUBLIC_API_URL || "";
 
 async function getJson<T>(path: string, schema: v.GenericSchema<T>): Promise<T> {
   const res = await fetch(`${BASE}${path}`);
