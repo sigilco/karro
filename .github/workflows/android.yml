@@ -34,6 +34,10 @@ on:
   pull_request:
   workflow_dispatch:
 
+# API base baked into the JS bundle by the metro import-meta-env plugin.
+env:
+  ONE_PUBLIC_API_URL: https://karro-api.josocjoq-dev.workers.dev
+
 jobs:
   build:
     runs-on: ubuntu-latest

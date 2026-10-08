@@ -26,6 +26,10 @@ concurrency:
   group: ios-${{ github.ref }}
   cancel-in-progress: true
 
+# API base baked into the JS bundle by the metro import-meta-env plugin.
+env:
+  ONE_PUBLIC_API_URL: https://karro-api.josocjoq-dev.workers.dev
+
 jobs:
   testflight:
     runs-on: macos-latest
