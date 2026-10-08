@@ -1,0 +1,82 @@
+diff --git a/react-native-gradle-plugin/build.gradle.kts b/react-native-gradle-plugin/build.gradle.kts
+index c4f92db2e1a17b40c773de516ee5384aa95f6831..f21a399db19ba45e3bdb3278a961829168fcecc5 100644
+--- a/react-native-gradle-plugin/build.gradle.kts
++++ b/react-native-gradle-plugin/build.gradle.kts
+@@ -18,7 +18,9 @@ plugins {
+ 
+ repositories {
+   google()
+-  mavenCentral()
++  maven { url = uri("https://maven.aliyun.com/repository/central") }
++    maven { url = uri("https://maven.aliyun.com/repository/gradle-plugin") }
++    mavenCentral()
+ }
+ 
+ gradlePlugin {
+diff --git a/settings-plugin/build.gradle.kts b/settings-plugin/build.gradle.kts
+index 870844cb29217ccb7c6129ac989837b77072d405..c9ee5be7ec52cf6caa3201c44503715a1170e714 100644
+--- a/settings-plugin/build.gradle.kts
++++ b/settings-plugin/build.gradle.kts
+@@ -18,7 +18,9 @@ plugins {
+ 
+ repositories {
+   google()
+-  mavenCentral()
++  maven { url = uri("https://maven.aliyun.com/repository/central") }
++    maven { url = uri("https://maven.aliyun.com/repository/gradle-plugin") }
++    mavenCentral()
+ }
+ 
+ gradlePlugin {
+diff --git a/settings.gradle.kts b/settings.gradle.kts
+index 14f1e9c2063ef10ca3f2ecbb2336b8a4aacfcc9c..4772115871c759217021bb60356dbafc4a00fee1 100644
+--- a/settings.gradle.kts
++++ b/settings.gradle.kts
+@@ -7,13 +7,16 @@
+ 
+ pluginManagement {
+   repositories {
++    maven { url = uri("https://maven.aliyun.com/repository/central") }
++    maven { url = uri("https://maven.aliyun.com/repository/gradle-plugin") }
+     mavenCentral()
+     google()
++    maven { url = uri("https://maven.aliyun.com/repository/gradle-plugin") }
+     gradlePluginPortal()
+   }
+ }
+ 
+-plugins { id("org.gradle.toolchains.foojay-resolver-convention").version("1.0.0") }
++// foojay stripped — Central is rate-limiting this IP; JDK 17 is installed locally
+ 
+ include(
+     ":react-native-gradle-plugin",
+diff --git a/shared/build.gradle.kts b/shared/build.gradle.kts
+index 9395aab534834008f0bd71fb81c4b49fbbd8e086..3cf1aedd96d39b7de5a0a6207d8cd42865f80ae7 100644
+--- a/shared/build.gradle.kts
++++ b/shared/build.gradle.kts
+@@ -15,7 +15,9 @@ plugins {
+   alias(libs.plugins.ktfmt)
+ }
+ 
+-repositories { mavenCentral() }
++repositories { maven { url = uri("https://maven.aliyun.com/repository/central") }
++    maven { url = uri("https://maven.aliyun.com/repository/gradle-plugin") }
++    mavenCentral() }
+ 
+ group = "com.facebook.react"
+ 
+diff --git a/shared-testutil/build.gradle.kts b/shared-testutil/build.gradle.kts
+index 307d8a9743f7b0c44e17a0d421cd75ffc8a6e81d..3f5c79f2b88e33393065f5c72d3e95fb8a3ef490 100644
+--- a/shared-testutil/build.gradle.kts
++++ b/shared-testutil/build.gradle.kts
+@@ -15,7 +15,9 @@ plugins {
+   alias(libs.plugins.ktfmt)
+ }
+ 
+-repositories { mavenCentral() }
++repositories { maven { url = uri("https://maven.aliyun.com/repository/central") }
++    maven { url = uri("https://maven.aliyun.com/repository/gradle-plugin") }
++    mavenCentral() }
+ 
+ group = "com.facebook.react"
+ 

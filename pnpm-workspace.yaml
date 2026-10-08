@@ -7,3 +7,6 @@ allowBuilds:
   core-js: true
   esbuild: true
   workerd: true
+
+patchedDependencies:
+  '@react-native/gradle-plugin@0.87.1': patches/@react-native__gradle-plugin@0.87.1.patch
