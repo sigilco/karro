@@ -1,0 +1,17 @@
+{
+  "name": "@karro/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "dev": "node src/index.ts",
+    "start": "node src/index.ts"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.19",
+    "hono": "^4.9"
+  }
+}

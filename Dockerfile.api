@@ -1,0 +1,9 @@
+FROM node:24-slim
+WORKDIR /srv
+RUN corepack enable && corepack prepare pnpm@12.8.2 --activate
+COPY pnpm-workspace.yaml package.json pnpm-lock.yaml ./
+COPY apps/api ./apps/api
+RUN pnpm install --filter @karro/api --prod --frozen-lockfile
+ENV PORT=8080
+EXPOSE 8080
+CMD ["node", "apps/api/src/index.ts"]
