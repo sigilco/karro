@@ -149,7 +149,10 @@ async def lifespan(app: FastAPI):
         poll_task.cancel()
 
 
-app = FastAPI(title="karro-shim", version="0.1.0", lifespan=lifespan)
+app = FastAPI()
+app.title = "karro-shim"
+app.version = "0.1.0"
+app.router.lifespan_context = lifespan
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
