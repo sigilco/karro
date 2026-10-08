@@ -11,6 +11,7 @@ import type { FeedState as ApiState } from "./core";
 
 interface Env {
   FEED: DurableObjectNamespace;
+  ASSETS: Fetcher;
 }
 
 const SINGLETON = "malaga";
@@ -54,10 +55,26 @@ export class FeedDO implements DurableObject {
   }
 }
 
+// Pretty-path routing for the emitted per-route .html files (/dest -> /dest.html).
+function assetPath(pathname: string): string {
+  if (pathname === "/" || pathname === "") return "/index.html";
+  if (pathname.includes(".")) return pathname;
+  return `${pathname.replace(/\/$/, "")}.html`;
+}
+
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
-    const stub = env.FEED.get(env.FEED.idFromName(SINGLETON));
-    return stub.fetch(request);
+    const url = new URL(request.url);
+    if (url.pathname.startsWith("/v1/")) {
+      const stub = env.FEED.get(env.FEED.idFromName(SINGLETON));
+      return stub.fetch(request);
+    }
+    const assetUrl = new URL(assetPath(url.pathname), url.origin);
+    const res = await env.ASSETS.fetch(new Request(assetUrl, request));
+    if (res.status === 404) {
+      return env.ASSETS.fetch(new Request(new URL("/index.html", url.origin), request));
+    }
+    return res;
   },
 
   async scheduled(_event: ScheduledController, env: Env, ctx: ExecutionContext): Promise<void> {

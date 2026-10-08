@@ -12,3 +12,9 @@ bindings = [{ name = "FEED", class_name = "FeedDO" }]
 [[migrations]]
 tag = "v1"
 new_sqlite_classes = ["FeedDO"]
+
+# Static frontend (dist/client) served by the same worker — one domain for app + API.
+[assets]
+directory = "../../dist/client"
+binding = "ASSETS"
+not_found_handling = "none"

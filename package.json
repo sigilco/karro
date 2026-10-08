@@ -6,7 +6,7 @@
   "scripts": {
     "postinstall": "one patch || true",
     "dev": "one dev",
-    "build": "one build",
+    "build": "one build && node scripts/inject-html.mjs",
     "serve": "one serve",
     "prebuild:native": "one prebuild",
     "ios": "one run:ios",
